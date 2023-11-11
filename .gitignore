@@ -1,0 +1,6 @@
+templates
+poetry.lock
+pyproject.toml
+.pythonlibs
+__pycache__
+.replit
