@@ -1,0 +1,49 @@
+Metadata-Version: 2.1
+Name: ed
+Version: 0.1.0
+Summary: the standard text editor
+Home-page: https://github.com/eumiro/ed/
+Author: Miroslav Šedivý
+Author-email: eumiro@gmail.com
+Maintainer: Miroslav Šedivý
+Maintainer-email: eumiro@gmail.com
+License: MIT
+Keywords: ed,editor,text editor,unix,ed(1),the standard text editor
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Environment :: Console
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Information Technology
+Classifier: Intended Audience :: Other Audience
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Telecommunications Industry
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Text Editors
+Classifier: Topic :: Text Editors :: Text Processing
+Classifier: Topic :: Utilities
+Description-Content-Type: text/x-rst
+Provides-Extra: test
+Requires-Dist: pytest ; extra == 'test'
+Requires-Dist: pre-commit ; extra == 'test'
+
+ed(1) in Python
+=====================
+
+
+.. image:: https://github.com/eumiro/ed/workflows/CI/badge.svg
+  :target: https://github.com/eumiro/ed/actions?query=workflow%3ACI
+
+.. image:: https://img.shields.io/github/license/eumiro/ed
+  :target: https://github.com/eumiro/ed/
+
+
