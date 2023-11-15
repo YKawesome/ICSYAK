@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 import ed
-
+from datetime import datetime
 
 class APLCOMS(commands.Cog, description='Application Commands'):
 
@@ -12,11 +12,13 @@ class APLCOMS(commands.Cog, description='Application Commands'):
     self.get_general.start()
     self.get_the.start()
     self.get_ther.start()
+    self.get_midterms.start()
 
   @app_commands.command()
   async def testapp(self, interaction: discord.Interaction) -> None:
-    await interaction.response.send_message("hello from the command!")
+    await interaction.response.send_message(datetime.now())
 
+  
   @tasks.loop(minutes=30)
   async def get_pinned(self):
     print('ran!')
@@ -44,13 +46,17 @@ class APLCOMS(commands.Cog, description='Application Commands'):
   async def get_general(self):
     await APLCOMS.do_message(self, 'General', 1172703040659263548, 0x0565a8, 1172697491964170324)
 
-  @tasks.loop(minutes=15)
+  @tasks.loop(minutes=16)
   async def get_the(self):
     await APLCOMS.do_message(self, 'Take-home exam questions', 1172704581059366973, 0xc84300, 1172697491964170324)
 
-  @tasks.loop(minutes=15)
+  @tasks.loop(minutes=17)
   async def get_ther(self):
     await APLCOMS.do_message(self, 'THE redo questions', 1172704616845148180, 0xad32d9, 1172697491964170324)
+
+  @tasks.loop(minutes=18)
+  async def get_midterms(self):
+    await APLCOMS.do_message(self, 'Midterms', 1173040165606924371, 0x4e7d00, 1172697491964170324)
   
   
   @commands.command(name='sync', description='Owner only')
@@ -95,6 +101,72 @@ class APLCOMS(commands.Cog, description='Application Commands'):
       else:
         pass
 
+  @commands.Cog.listener()
+  async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
+    channel = discord.utils.get(self.bot.get_all_channels(), id=payload.channel_id)
+    message = await channel.fetch_message(payload.message_id)
+    member = message.author
+    if member.id == 1172417098065125436:
+      try:
+        emb = message.embeds[0]
+        id = emb.footer.text.split('| ')[-1]
+      except:
+        return None
+    try:
+      ed_thread = ed.get_thread(int(id))
+    except UnboundLocalError:
+      return None
+    comments = ed_thread['comments']
+    answers = ed_thread['answers']
+    replies = comments + answers
+    
+
+    try:
+      thread = await message.create_thread(name=emb.title)
+      lmsg = [msg async for msg in channel.history(limit=1)][0]
+      await lmsg.delete()
+    except:
+      thread = await channel.get_thread(message.id)
+
+    if len(replies) == 0:
+      await thread.send('No replies yet. Try reacting to the originalmessage again later.')
+      return None
+    
+    for reply in replies:
+      document = reply['document']
+      embed = discord.Embed(description=document,
+                            color=0xf47fff)
+      url = ed.get_reply_link(reply)
+      embed.set_author(name=reply['user_id'], url=url)
+      embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
+      await thread.send(embed=embed)
+
+  @commands.command(name='testing')
+  async def testing(self, ctx):
+    msg = await ctx.channel.fetch_message(1174141999318847578)
+    thread = await msg.create_thread(name='testing')
+    await thread.send('wahoo')
+
+  @commands.has_any_role(1172347732300677160)
+  @commands.command(name='schizo')
+  async def schizo(self, ctx, member: discord.Member):
+    # print(member)
+    guild: discord.Guild = ctx.guild
+    role = guild.get_role(1174252377591795772)
+    # print(role)
+    await member.add_roles(role)
+    await ctx.message.delete()
+
+  @commands.has_any_role(1172347732300677160)
+  @commands.command(name='unschizo')
+  async def unschizo(self, ctx, member: discord.Member):
+    # print(member)
+    guild: discord.Guild = ctx.guild
+    role = guild.get_role(1174252377591795772)
+    # print(role)
+    await member.remove_roles(role)
+    await ctx.message.delete()
+    
 
 async def setup(bot: commands.Bot):
   await bot.add_cog(APLCOMS(bot))

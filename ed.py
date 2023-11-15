@@ -9,6 +9,11 @@ def get_threads(amt: int) -> list:
   threads = ed.list_threads(course_id=48103, limit=amt)
   return threads
 
+def get_thread(id: int) -> dict:
+  ed = EdAPI()
+  ed.login()
+  thread = ed.get_thread(id)
+  return dict(thread)
 
 def get_title(thread: dict) -> str:
   return thread['title']
@@ -50,6 +55,13 @@ def get_link(thread: dict) -> str:
   return f'https://edstem.org/us/courses/{thread["course_id"]}/discussion/{thread["id"]}'
 
 
+def get_reply_link(reply: dict) -> str:
+  return f'https://edstem.org/us/courses/{reply["course_id"]}/discussion/{reply["thread_id"]}?comment={get_id(reply)}'
+
+def get_id(thread: dict) -> str:
+  return thread['id']
+
+
 def get_date(thread: dict) -> datetime:
   datestring = thread['created_at']
   datestring = datestring[:-3] + datestring[-2:]
@@ -80,7 +92,7 @@ def make_embed(thread: dict, color) -> discord.Embed:
                         url=link,
                         description=document,
                         color=color)
-  embed.set_footer(text=f'{get_date_string(thread)} | A bot by yousef :D')
+  embed.set_footer(text=f'{get_date_string(thread)} | A bot by yousef :D | {get_id(thread)}')
   return embed
 
 
@@ -90,3 +102,12 @@ def filter_threads(threads: list[dict], category: str) -> list[dict]:
     if not thread["is_pinned"] and thread['category'] == category:
       filtered_threads.append(thread)
   return filtered_threads
+
+# def filter_threads_by_author(threads: list[dict], name: str) -> dict:
+#   '''Returns the first thread by the author with the first name'''
+#   threads = sorted(threads, key=get_date)
+#   for thread in threads:
+#     if not thread["is_pinned"] and thread['user']['name'].lower().startswith(name):
+#       return thread
+    
+  
