@@ -121,20 +121,27 @@ class APLCOMS(commands.Cog, description='Application Commands'):
                                 id=payload.channel_id)
     message = await channel.fetch_message(payload.message_id)
     member = message.author
-    await message.remove_reaction(payload.emoji, payload.member)
     if member.id == 1172417098065125436:
       try:
+        await message.remove_reaction(payload.emoji, payload.member)
         emb = message.embeds[0]
         id = emb.footer.text.split('| ')[-1]
       except:
         return None
+    ed_thread = None
+    errormsg = None
     try:
       ed_thread = ed.get_thread(int(id))
     except UnboundLocalError:
       return None
-    comments = ed_thread['comments']
-    answers = ed_thread['answers']
-    replies = comments + answers
+    except:
+      errormsg = 'This thread has been deleted.'
+
+    replies = None
+    if ed_thread is not None:
+      comments = ed_thread['comments']
+      answers = ed_thread['answers']
+      replies = comments + answers
 
     try:
       thread = await message.create_thread(name=emb.title)
@@ -147,9 +154,10 @@ class APLCOMS(commands.Cog, description='Application Commands'):
       for msg in msgs:
         await msg.delete()
 
-    if len(replies) == 0:
-      await thread.send(
-          'No replies yet. Try reacting to the originalmessage again later.')
+    if replies is not None and len(replies) == 0:
+      errormsg = 'No replies yet. Try reacting to the original message again later.'
+    if errormsg is not None:
+      await thread.send(errormsg)
       return None
 
     for reply in replies:
