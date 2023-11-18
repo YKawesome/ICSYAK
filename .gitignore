@@ -4,3 +4,4 @@ pyproject.toml
 .pythonlibs
 __pycache__
 .replit
+.env
