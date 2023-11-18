@@ -10,7 +10,7 @@ description = "An ICS 6B Discord Bot"
 
 TOKEN = os.environ['DISCORD_TOKEN']
 
-startup_extensions = ["aplcoms"]
+startup_extensions = ["threadgrabber", "eventhandlers"]
 bot = commands.Bot(command_prefix='*', description=description, intents=discord.Intents.all())
 
 @bot.event
