@@ -81,14 +81,14 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             limit = 50
         channel = await self.bot.fetch_channel(channel_id)
         print(channel)
-        msgs = [message async for message in channel.history(limit=50)]
+        msgs = [message async for message in channel.history(limit=100)]
         retlist = []
         for msg in msgs:
             try:
                 embed = msg.embeds[0].title
                 retlist.append(embed)
             except Exception:
-                pass
+                continue
 
         threads = ed.get_threads(limit)
         if category is not None:
