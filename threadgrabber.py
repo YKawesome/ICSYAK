@@ -7,7 +7,7 @@ import ed
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        # self.get_pinned.start()
+        self.get_pinned.start()
         self.get_general.start()
         self.get_the.start()
         self.get_ther.start()
@@ -75,12 +75,13 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
 
     async def do_message(self, channel_id: int, color, role_id: int, category: str = None):
         if category is None:
-            limit = 10
+            print('yessir')
+            limit = 3
         else:
             limit = 50
         channel = await self.bot.fetch_channel(channel_id)
         print(channel)
-        msgs = [message async for message in channel.history(limit=limit)]
+        msgs = [message async for message in channel.history(limit=50)]
         retlist = []
         for msg in msgs:
             try:
