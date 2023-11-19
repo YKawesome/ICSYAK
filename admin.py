@@ -12,6 +12,20 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         await interaction.response.send_message('test')
 
     @app_commands.default_permissions(administrator=True)
+    @app_commands.command(name='send', description='Sends a message in a particular channel')
+    async def send(self, interaction: discord.Interaction, channel: discord.TextChannel, message: str):
+        await channel.send(message)
+        await interaction.response.send_message(f'Sent message to {channel}', ephemeral=True, delete_after=5)
+
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.command(name='reply', description='Replies to a specified message')
+    async def reply(self, interaction: discord.Interaction, message_id: str, reply: str):
+        message_id = int(message_id)
+        message = await interaction.channel.fetch_message(message_id)
+        await message.reply(reply)
+        await interaction.response.send_message(f'Replied to message {message_id}', ephemeral=True, delete_after=5)
+    
+    @app_commands.default_permissions(administrator=True)
     @app_commands.command(name='schizo', description='Gives someone the schizo role')
     async def schizo(self, interaction: discord.Interaction, member: discord.Member):
         # print(member)
