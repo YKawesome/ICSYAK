@@ -105,6 +105,16 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
                 await msg.add_reaction('❤️')
                 await channel.send(f'<@&{role_id}>')
 
+    @app_commands.command(name='link_thread', description='Links a thread from Ed Discussion')
+    async def link_thread(self, interaction: discord.Interaction, thread_number: int):
+        try:
+            thread = ed.get_course_thread(48103, thread_number)
+        except Exception:
+            await interaction.response.send_message(f'Thread {thread_number} has been deleted or was private.')
+            return
+        embed = ed.make_embed_no_user(thread, 0xf47fff)
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(THREADGRABBER(bot))

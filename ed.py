@@ -17,6 +17,13 @@ def get_thread(id: int) -> dict:
     return dict(thread)
 
 
+def get_course_thread(course_id: int, thread_number: int)  -> dict:
+    ed = EdAPI()
+    ed.login()
+    thread = ed.get_course_thread(course_id, thread_number)
+    return dict(thread)
+
+
 def get_title(thread: dict) -> str:
     return thread['title']
 
@@ -87,6 +94,16 @@ def make_embed(thread: dict, color) -> discord.Embed:
         title = f'{get_title(thread)}: Anonymous, in {get_category(thread)}'
     else:
         title = f'{get_title(thread)}: {get_author(thread)}, in {get_category(thread)}'
+    document = get_document(thread)
+    link = get_link(thread)
+
+    embed = discord.Embed(title=title, url=link, description=document, color=color)
+    embed.set_footer(text=f'{get_date_string(thread)} | A bot by yousef :D | {get_id(thread)}')
+    return embed
+
+
+def make_embed_no_user(thread: dict, color) -> discord.Embed:
+    title = f'{get_title(thread)}: {get_category(thread)}'
     document = get_document(thread)
     link = get_link(thread)
 
