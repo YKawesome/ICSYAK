@@ -89,12 +89,8 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
         ed_link = ed.get_link(ed_thread)
         ed_date = ed.get_date_string(ed_thread)
         ed_id = ed.get_id(ed_thread)
-        try:
-            ed_author = ed.get_author(ed_thread)
-        except Exception:
-            ed_author = 'Anonymous'
 
-        embed = discord.Embed(title=f'{ed_title}: {ed_author}, in {ed_category}', url=ed_link, description=ed_document, color=0xf47fff)
+        embed = discord.Embed(title=f'{ed_title}: {ed_category}', url=ed_link, description=ed_document, color=0xf47fff)
         embed.set_footer(text=f'{ed_date} | A bot by yousef :D | {ed_id}')
 
         new_message = await message.channel.send(f'> From {message.author.mention}:', embed=embed)
