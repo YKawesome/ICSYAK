@@ -115,6 +115,26 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         embed = ed.make_embed_no_user(thread, 0xf47fff)
         await interaction.response.send_message(embed=embed)
 
+        new_message = interaction.channel.last_message
+        if len(new_message.embeds) == 0:
+            return
+        try:
+            d_thread = await new_message.create_thread(name=new_message.embeds[0].title)
+        except Exception:
+            await interaction.channel.send('We are in a thread already, so I am not listing the replies here.')
+            return
+
+        comments = thread['comments']
+        answers = thread['answers']
+        replies = comments + answers
+        for reply in replies:
+            document = reply['document']
+            embed = discord.Embed(description=document, color=0xf47fff)
+            url = ed.get_reply_link(reply)
+            embed.set_author(name=reply['user_id'], url=url)
+            embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
+            await d_thread.send(embed=embed)
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(THREADGRABBER(bot))

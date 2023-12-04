@@ -125,3 +125,5 @@ def filter_threads(threads: list[dict], category: str, pinned_ok: bool) -> list[
 if __name__ == '__main__':
     ed = EdAPI()
     ed.login()
+    thread = ed.get_course_thread(48103, 1591)
+    print(thread)
