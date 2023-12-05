@@ -24,7 +24,7 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         message = await interaction.channel.fetch_message(message_id)
         await message.reply(reply)
         await interaction.response.send_message(f'Replied to message {message_id}', ephemeral=True, delete_after=5)
-    
+
     @app_commands.default_permissions(administrator=True)
     @app_commands.command(name='schizo', description='Gives someone the schizo role')
     async def schizo(self, interaction: discord.Interaction, member: discord.Member):
@@ -44,6 +44,16 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         # print(role)
         await member.remove_roles(role)
         await interaction.response.send_message(f'<@{member.id}> has been unschizo\'d.', ephemeral=True, delete_after=10)
+
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.command(name='create_problem_threads', description='Creates problem threads for a test. Seperate outcomes by spaces.')
+    async def create_problem_threads(self, interaction: discord.Interaction, test_name: str, problems_string: str):
+        forum: discord.ForumChannel = interaction.guild.get_channel(1172420995806675005)
+        problems = problems_string.split(' ')
+        tag = await forum.create_tag(name=test_name, moderated=False)
+        for problem in problems:
+            await forum.create_thread(name=f'{test_name} {problem}', auto_archive_duration=1440, content='Post solutions here!', applied_tags=[tag])
+        await interaction.response.send_message(f'Created problem threads for {",".join(problems)} in {test_name}')
 
 
 async def setup(bot: commands.Bot):
