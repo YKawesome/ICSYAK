@@ -7,12 +7,12 @@ import ed
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        self.get_pinned.start()
-        self.get_general.start()
-        self.get_the.start()
-        self.get_ther.start()
-        self.get_midterms.start()
-        self.get_other.start()
+        # self.get_pinned.start()
+        # self.get_general.start()
+        # self.get_the.start()
+        # self.get_ther.start()
+        # self.get_midterms.start()
+        # self.get_other.start()
 
     @tasks.loop(minutes=30)
     async def get_pinned(self):
