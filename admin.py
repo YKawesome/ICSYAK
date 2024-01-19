@@ -14,6 +14,7 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
     @app_commands.default_permissions(administrator=True)
     @app_commands.command(name='send', description='Sends a message in a particular channel')
     async def send(self, interaction: discord.Interaction, channel: discord.TextChannel, message: str):
+        message = message.replace('\\n', '\n')
         await channel.send(message)
         await interaction.response.send_message(f'Sent message to {channel}', ephemeral=True, delete_after=5)
 
