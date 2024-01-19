@@ -6,7 +6,7 @@ import discord
 def get_threads(amt: int) -> list:
     ed = EdAPI()
     ed.login()
-    threads = ed.list_threads(course_id=48103, limit=amt)
+    threads = ed.list_threads(course_id=50505, limit=amt)
     return threads
 
 

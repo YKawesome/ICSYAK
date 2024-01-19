@@ -11,11 +11,11 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
         await self.get_replies_from_thread(payload)
 
-    @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        if message.author.bot:
-            return
-        await self.embed_ed(message)
+    # @commands.Cog.listener()
+    # async def on_message(self, message: discord.Message):
+    #     if message.author.bot:
+    #         return
+    #     await self.embed_ed(message)
 
     async def get_replies_from_thread(self, payload: discord.RawReactionActionEvent):
         errormsg = None
