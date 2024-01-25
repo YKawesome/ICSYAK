@@ -105,6 +105,8 @@ def make_embed(thread: dict, color) -> discord.Embed:
 def make_embed_no_user(thread: dict, color) -> discord.Embed:
     title = f'{get_title(thread)}: {get_category(thread)}'
     document = get_document(thread)
+    if len(document) > 4000:
+        document = document[:4000] + '...'
     link = get_link(thread)
 
     embed = discord.Embed(title=title, url=link, description=document, color=color)

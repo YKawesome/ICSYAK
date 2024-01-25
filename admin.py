@@ -48,13 +48,13 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
 
     @app_commands.default_permissions(administrator=True)
     @app_commands.command(name='create_problem_threads', description='Creates problem threads for a test. Seperate outcomes by spaces.')
-    async def create_problem_threads(self, interaction: discord.Interaction, test_name: str, problems_string: str):
-        forum: discord.ForumChannel = interaction.guild.get_channel(1172420995806675005)
+    async def create_problem_threads(self, interaction: discord.Interaction, assn_name: str, problems_string: str):
+        forum: discord.ForumChannel = interaction.guild.get_channel(1195541144210247800)
         problems = problems_string.split(' ')
-        tag = await forum.create_tag(name=test_name, moderated=False)
+        tag = discord.utils.get(forum.available_tags, name='Homework')
         for problem in problems:
-            await forum.create_thread(name=f'{test_name} {problem}', auto_archive_duration=1440, content='Post solutions here!', applied_tags=[tag])
-        await interaction.response.send_message(f'Created problem threads for {",".join(problems)} in {test_name}')
+            await forum.create_thread(name=f'{assn_name} Problem {problem}', auto_archive_duration=1440, content='Post solutions here!', applied_tags=[tag])
+        await interaction.response.send_message(f'Created problem threads for {",".join(problems)} for {assn_name}', ephemeral=True, delete_after=5)
 
 
 async def setup(bot: commands.Bot):
