@@ -51,7 +51,11 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
     async def create_problem_threads(self, interaction: discord.Interaction, assn_name: str, problems_string: str):
         forum: discord.ForumChannel = interaction.guild.get_channel(1195541144210247800)
         problems = problems_string.split(' ')
-        tag = discord.utils.get(forum.available_tags, name='Homework')
+        try:
+            tag = discord.utils.get(forum.available_tags, name=assn_name)
+        except discord.errors.HTTPException:
+            await interaction.response.send_message(f'No tag found for {assn_name}', ephemeral=True, delete_after=5)
+            return
         for problem in problems:
             await forum.create_thread(name=f'{assn_name} Problem {problem}', auto_archive_duration=1440, content='Post solutions here!', applied_tags=[tag])
         await interaction.response.send_message(f'Created problem threads for {",".join(problems)} for {assn_name}', ephemeral=True, delete_after=5)
