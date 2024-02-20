@@ -53,7 +53,9 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         problems = problems_string.split(' ')
         try:
             tag = discord.utils.get(forum.available_tags, name=assn_name)
-        except discord.errors.HTTPException:
+            if tag is None:
+                raise Exception
+        except Exception:
             await interaction.response.send_message(f'No tag found for {assn_name}', ephemeral=True, delete_after=5)
             return
         for problem in problems:
