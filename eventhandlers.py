@@ -11,12 +11,6 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     async def on_raw_reaction_add(self, payload: discord.RawReactionActionEvent):
         await self.get_replies_from_thread(payload)
 
-    # @commands.Cog.listener()
-    # async def on_message(self, message: discord.Message):
-    #     if message.author.bot:
-    #         return
-    #     await self.embed_ed(message)
-
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
@@ -26,100 +20,89 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
             print('added prev owner role')
 
     async def get_replies_from_thread(self, payload: discord.RawReactionActionEvent):
-        errormsg = None
-        reactor = payload.member
         bot_id = 1172417098065125436
-        bot_reaction = reactor.id == bot_id
-        if bot_reaction:
+        if payload.member.id == bot_id:
+            return
+
+        channel = discord.utils.get(self.bot.get_all_channels(), id=payload.channel_id)
+        if channel is None:
+            return
+
+        message = await self.fetch_message(channel, payload.message_id)
+        if message is None or message.author.id != bot_id or not channel.name.startswith('ed'):
+            return
+
+        if not await self.remove_reaction_if_applicable(message, payload):
+            return
+
+        thread, error_msg = await self.process_message_thread(message)
+        if error_msg:
+            await self.send_error_message(thread, error_msg)
+        else:
+            await self.send_replies(thread, message)
+
+    async def fetch_message(self, channel, message_id):
+        try:
+            return await channel.fetch_message(message_id)
+        except Exception:
             return None
 
-        # If correct message type, remove reaction as confirmation
-        channel = discord.utils.get(self.bot.get_all_channels(), id=payload.channel_id)
+    async def remove_reaction_if_applicable(self, message, payload):
         try:
-            message = await channel.fetch_message(payload.message_id)
+            await message.remove_reaction(payload.emoji, payload.member)
+            return True
         except Exception:
-            return
-        member = message.author
-        if member.id == bot_id and channel.name.startswith('ed'):
-            try:
-                await message.remove_reaction(payload.emoji, payload.member)
-                emb = message.embeds[0]
-                thread_id = emb.footer.text.split('| ')[-1]
-            except Exception:
-                return
-        else:
-            return
+            return False
 
-        # Attempt to get thread replies
+    async def process_message_thread(self, message):
+        emb = message.embeds[0]
+        thread_id = emb.footer.text.split('| ')[-1]
         try:
             ed_thread = ed.get_thread(int(thread_id))
-            comments = ed_thread['comments']
-            answers = ed_thread['answers']
-            replies = comments + answers
-            if len(replies) == 0:
-                errormsg = 'No replies yet. Try reacting to the original message again later.'
+            replies = ed_thread['comments'] + ed_thread['answers']
+            if not replies:
+                return None, 'No replies yet. Try reacting to the original message again later.'
         except Exception:
-            errormsg = 'This thread has been deleted.'
+            return None, 'This thread has been deleted.'
 
-        # Create thread, or if exists already, replace current replies
+        thread = await self.get_or_create_thread(message, emb)
+        return thread, None if replies else 'No replies yet. Try reacting to the original message again later.'
+
+    async def get_or_create_thread(self, message, emb):
         try:
             thread = await message.create_thread(name=emb.title)
-            lmsg = [msg async for msg in channel.history(limit=1)][0]
-            await lmsg.delete()
+            last_msg = [msg async for msg in thread.history(limit=1)][0]
+            await last_msg.delete()
         except Exception:
-            thread = channel.get_thread(message.id)
-            msgs = [message async for message in thread.history(limit=100)]
-            del msgs[-1]
-            for msg in msgs:
-                await msg.delete()
+            thread = message.channel.get_thread(message.id)
+            await self.clear_thread_messages(thread)
+        return thread
 
-        # Send error message if applicable
-        if errormsg is not None:
-            await thread.send(errormsg)
-            return
+    async def clear_thread_messages(self, thread):
+        msgs = [msg async for msg in thread.history(limit=100)]
+        for msg in msgs[:-1]:
+            await msg.delete()
 
-        # Send replies
+    async def send_error_message(self, thread, errormsg):
+        await thread.send(errormsg)
+
+    async def send_replies(self, thread, message):
+        emb = message.embeds[0]
+        thread_id = emb.footer.text.split('| ')[-1]
+        ed_thread = ed.get_thread(int(thread_id))
+        replies = ed_thread['comments'] + ed_thread['answers']
         for reply in replies:
-            document = reply['document']
-            embed = discord.Embed(description=document, color=0xf47fff)
-            url = ed.get_reply_link(reply)
-            embed.set_author(name=reply['user_id'], url=url)
-            embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
+            embed = self.create_reply_embed(reply)
             await thread.send(embed=embed)
 
-    async def embed_ed(self, message: discord.Message):
-        if not message.content.startswith('https://edstem.org/us/courses/48103/discussion/'):
-            return
-        ed_thread = ed.get_thread(int(message.content.split('/')[-1]))
-        ed_title = ed.get_title(ed_thread)
-        ed_category = ed.get_category(ed_thread)
-        ed_document = ed.get_document(ed_thread)
-        ed_link = ed.get_link(ed_thread)
-        ed_date = ed.get_date_string(ed_thread)
-        ed_id = ed.get_id(ed_thread)
-
-        embed = discord.Embed(title=f'{ed_title}: {ed_category}', url=ed_link, description=ed_document, color=0xf47fff)
-        embed.set_footer(text=f'{ed_date} | A bot by yousef :D | {ed_id}')
-
-        new_message = await message.channel.send(f'> From {message.author.mention}:', embed=embed)
-        try:
-            thread = await new_message.create_thread(name=new_message.embeds[0].title)
-        except Exception:
-            await message.channel.send('We are in a thread already, so I am not listing the replies here.')
-            return
-        finally:
-            await message.delete()
-
-        comments = ed_thread['comments']
-        answers = ed_thread['answers']
-        replies = comments + answers
-        for reply in replies:
-            document = reply['document']
-            embed = discord.Embed(description=document, color=0xf47fff)
-            url = ed.get_reply_link(reply)
-            embed.set_author(name=reply['user_id'], url=url)
-            embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
-            await thread.send(embed=embed)
+    def create_reply_embed(self, reply):
+        document = reply['document']
+        embed = discord.Embed(description=document, color=0xf47fff)
+        url = ed.get_reply_link(reply)
+        user = reply['user_id'] if reply['user_id'] != 0 else 'Anonymous'
+        embed.set_author(name=user, url=url)
+        embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
+        return embed
 
 
 async def setup(bot: commands.Bot):

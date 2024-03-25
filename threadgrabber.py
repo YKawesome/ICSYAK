@@ -7,7 +7,7 @@ import ed
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        self.get_pinned.start()
+        # self.get_pinned.start()
 
     @tasks.loop(minutes=30)
     async def get_pinned(self):
@@ -20,8 +20,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
 
     async def do_message(self, channel_id: int, color, role_id: int, category: str = None):
         if category is None:
-            print('yessir')
-            limit = 3
+            limit = 5
         else:
             limit = 50
         channel = await self.bot.fetch_channel(channel_id)
@@ -60,7 +59,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         except Exception:
             await interaction.response.send_message(f'Thread {thread_number} has been deleted or was private.')
             return
-        embed = ed.make_embed_no_user(thread, 0xf47fff)
+        embed = ed.make_embed(thread, 0xf47fff)
         await interaction.response.send_message(embed=embed)
 
         new_message = interaction.channel.last_message

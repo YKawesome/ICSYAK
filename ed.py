@@ -17,7 +17,7 @@ def get_thread(id: int) -> dict:
     return dict(thread)
 
 
-def get_course_thread(course_id: int, thread_number: int)  -> dict:
+def get_course_thread(course_id: int, thread_number: int) -> dict:
     ed = EdAPI()
     ed.login()
     thread = ed.get_course_thread(course_id, thread_number)
@@ -25,23 +25,23 @@ def get_course_thread(course_id: int, thread_number: int)  -> dict:
 
 
 def get_title(thread: dict) -> str:
-    return thread['title']
+    return thread["title"]
 
 
 def get_document(thread: dict) -> str:
-    return thread['document']
+    return thread["document"]
 
 
 def get_author(thread: dict) -> str | None:
     try:
-        author = thread['user']['name']
+        author = thread["user"]["name"]
         return author
     except TypeError:
         return None
 
 
 def get_category(thread: dict) -> str:
-    return thread['category']
+    return thread["category"]
 
 
 def break_string_to_thousands(string: str) -> list[str] | None:
@@ -61,7 +61,9 @@ def break_string_to_thousands(string: str) -> list[str] | None:
 
 
 def get_link(thread: dict) -> str:
-    return f'https://edstem.org/us/courses/{thread["course_id"]}/discussion/{thread["id"]}'
+    return (
+        f'https://edstem.org/us/courses/{thread["course_id"]}/discussion/{thread["id"]}'
+    )
 
 
 def get_reply_link(reply: dict) -> str:
@@ -69,65 +71,64 @@ def get_reply_link(reply: dict) -> str:
 
 
 def get_id(thread: dict) -> str:
-    return thread['id']
+    return thread["id"]
+
+
+def get_course_id(thread: dict) -> str:
+    return thread["course_id"]
+
+
+def get_is_anonymous(thread: dict) -> bool:
+    return bool(thread["is_anonymous"])
 
 
 def get_date(thread: dict) -> datetime:
-    datestring = thread['created_at']
+    datestring = thread["created_at"]
     datestring = datestring[:-3] + datestring[-2:]
-    dt = datetime.strptime(datestring, '%Y-%m-%dT%H:%M:%S.%f%z')
+    dt = datetime.strptime(datestring, "%Y-%m-%dT%H:%M:%S.%f%z")
     return dt
 
 
 def get_date_string(thread: dict) -> str:
-    datestring = thread['created_at']
+    datestring = thread["created_at"]
     datestring = datestring[:-3] + datestring[-2:]
-    dt = datetime.strptime(datestring, '%Y-%m-%dT%H:%M:%S.%f%z')
+    dt = datetime.strptime(datestring, "%Y-%m-%dT%H:%M:%S.%f%z")
     offset_hours = 19
     adjusted_dt = dt.replace(tzinfo=None) - timedelta(hours=offset_hours)
-    formatted_datetime = adjusted_dt.strftime("%m/%d/%Y at %-I:%M:%S%p") + ' PST'
+    formatted_datetime = adjusted_dt.strftime("%m/%d/%Y at %-I:%M:%S%p") + " PST"
     return formatted_datetime
 
 
 def make_embed(thread: dict, color) -> discord.Embed:
-    if get_author(thread) is None:
-        title = f'{get_title(thread)}: Anonymous, in {get_category(thread)}'
-    else:
-        title = f'{get_title(thread)}: {get_author(thread)}, in {get_category(thread)}'
+    try:
+        author = get_author(thread) + ', '
+    except KeyError:
+        author = 'Anonymous, ' if get_is_anonymous(thread) else None
+
+    title = f"{get_title(thread)}: {author}, in {get_category(thread)}"
+
     document = get_document(thread)
     if len(document) > 4000:
-        document = document[:4000] + '...'
+        document = document[:4000] + "..."
+
     link = get_link(thread)
 
     embed = discord.Embed(title=title, url=link, description=document, color=color)
-    embed.set_footer(text=f'{get_date_string(thread)} | A bot by yousef :D | {get_id(thread)}')
-    return embed
-
-
-def make_embed_no_user(thread: dict, color) -> discord.Embed:
-    title = f'{get_title(thread)}: {get_category(thread)}'
-    document = get_document(thread)
-    if len(document) > 4000:
-        document = document[:4000] + '...'
-    link = get_link(thread)
-
-    embed = discord.Embed(title=title, url=link, description=document, color=color)
-    embed.set_footer(text=f'{get_date_string(thread)} | A bot by yousef :D | {get_id(thread)}')
+    embed.set_footer(
+        text=f"{get_date_string(thread)} | A bot by yousef :D | {get_course_id(thread)} | {get_id(thread)}"
+    )
     return embed
 
 
 def filter_threads(threads: list[dict], category: str, pinned_ok: bool) -> list[dict]:
     filtered_threads = []
     for thread in threads:
-        if not pinned_ok and thread['is_pinned']:
+        if not pinned_ok and thread["is_pinned"]:
             continue
-        if thread['category'] == category:
+        if thread["category"] == category:
             filtered_threads.append(thread)
     return filtered_threads
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ed = EdAPI()
-    ed.login()
-    thread = ed.get_course_thread(48103, 1591)
-    print(thread)
