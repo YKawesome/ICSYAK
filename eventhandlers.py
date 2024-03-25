@@ -17,6 +17,14 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     #         return
     #     await self.embed_ed(message)
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        guild = member.guild
+        if guild.id == 1055582457509986315 and member.id in {582730177763737640, 295697456019144704}:
+            role = discord.utils.get(guild.roles, id=1221188916569313441)
+            await member.add_roles(role)
+            print('added prev owner role')
+
     async def get_replies_from_thread(self, payload: discord.RawReactionActionEvent):
         errormsg = None
         reactor = payload.member
