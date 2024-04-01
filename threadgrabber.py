@@ -20,17 +20,17 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
 
     async def do_message(self, channel_id: int, color, role_id: int, category: str = None):
         if category is None:
-            limit = 5
+            limit = 3
         else:
             limit = 50
         channel = await self.bot.fetch_channel(channel_id)
         print(channel)
         msgs = [message async for message in channel.history(limit=100)]
-        retlist = []
+        retlist = set()
         for msg in msgs:
             try:
-                embed = msg.embeds[0].title
-                retlist.append(embed)
+                t_id = int(msg.embeds[0].footer.text.split('|')[-1].strip())
+                retlist.add(t_id)
             except Exception:
                 continue
 
@@ -40,8 +40,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         threads = sorted(threads, key=ed.get_date)
 
         for thread in threads:
-            author = 'Anonymous' if ed.get_author(thread) is None else ed.get_author(thread)
-            test = f'{ed.get_title(thread)}: {author}, in {ed.get_category(thread)}' in retlist
+            test = int(ed.get_id(thread)) in retlist
 
             if not test:
                 embed = ed.make_embed(thread, color)
