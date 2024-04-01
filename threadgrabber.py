@@ -7,13 +7,13 @@ import ed
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        # self.get_pinned.start()
+        self.get_6b_pinned.start()
 
     @tasks.loop(minutes=30)
-    async def get_pinned(self):
+    async def get_6b_pinned(self):
         await THREADGRABBER.do_message(
             self,
-            channel_id=1197815825793564672,
+            channel_id=1224153183891492894,
             color=0x50288c,
             role_id=1197816299536003072
             )

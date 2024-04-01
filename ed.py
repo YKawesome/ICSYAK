@@ -6,7 +6,7 @@ import discord
 def get_threads(amt: int) -> list:
     ed = EdAPI()
     ed.login()
-    threads = ed.list_threads(course_id=50505, limit=amt)
+    threads = ed.list_threads(course_id=57816, limit=amt)
     return threads
 
 
@@ -14,6 +14,8 @@ def get_thread(id: int) -> dict:
     ed = EdAPI()
     ed.login()
     thread = ed.get_thread(id)
+    if 'is_private' in thread and thread["is_private"]:
+        raise Exception("Thread is private")
     return dict(thread)
 
 
@@ -21,6 +23,8 @@ def get_course_thread(course_id: int, thread_number: int) -> dict:
     ed = EdAPI()
     ed.login()
     thread = ed.get_course_thread(course_id, thread_number)
+    if 'is_private' in thread and thread["is_private"]:
+        raise Exception("Thread is private")
     return dict(thread)
 
 
@@ -125,10 +129,14 @@ def filter_threads(threads: list[dict], category: str, pinned_ok: bool) -> list[
     for thread in threads:
         if not pinned_ok and thread["is_pinned"]:
             continue
+        if bool(thread["is_private"]):
+            continue
         if thread["category"] == category:
             filtered_threads.append(thread)
     return filtered_threads
 
 
 if __name__ == "__main__":
-    ed = EdAPI()
+    thread = get_threads(1)[0]
+    for key, value in thread.items():
+        print(f"{key}: {value}")
