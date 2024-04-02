@@ -8,18 +8,31 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     def __init__(self, bot):
         self.bot = bot
         self.get_6b_pinned.start()
+        self.get_45c_pinned.start()
 
     @tasks.loop(minutes=30)
     async def get_6b_pinned(self):
         await THREADGRABBER.do_message(
             self,
+            course_id=57816,
             channel_id=1224153183891492894,
             color=0x50288c,
             role_id=1197816299536003072,
             category='Pinned'
             )
 
-    async def do_message(self, channel_id: int, color, role_id: int, category: str = None):
+    @tasks.loop(minutes=30)
+    async def get_45c_pinned(self):
+        await THREADGRABBER.do_message(
+            self,
+            course_id=57763,
+            channel_id=1224858801346449519,
+            color=0x50288c,
+            role_id=1224858955281465364,
+            category='Pinned'
+            )
+
+    async def do_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
         if category is None or category == 'Pinned':
             limit = 6
         else:
@@ -35,12 +48,13 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             except Exception:
                 continue
 
-        threads = ed.get_threads(limit)
-        if category is not None:
+        threads = ed.get_threads(limit, course_id)
+        if category is not None and category != 'Pinned':
             threads = ed.filter_threads(threads, category, False)
         threads = sorted(threads, key=ed.get_date)
 
         for thread in threads:
+            print(ed.get_title(thread))
             test = int(ed.get_id(thread)) in retlist
             if category == 'Pinned' and not ed.get_is_pinned(thread):
                 continue

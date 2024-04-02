@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 import discord
 
 
-def get_threads(amt: int) -> list:
+def get_threads(amt: int, course_id: int) -> list:
     ed = EdAPI()
     ed.login()
-    threads = ed.list_threads(course_id=57816, limit=amt)
+    threads = ed.list_threads(course_id=course_id, limit=amt)
     return threads
 
 
