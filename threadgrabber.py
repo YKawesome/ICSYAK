@@ -15,7 +15,8 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             self,
             channel_id=1224153183891492894,
             color=0x50288c,
-            role_id=1197816299536003072
+            role_id=1197816299536003072,
+            category='Pinned'
             )
 
     async def do_message(self, channel_id: int, color, role_id: int, category: str = None):
