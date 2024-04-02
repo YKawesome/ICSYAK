@@ -19,8 +19,8 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             )
 
     async def do_message(self, channel_id: int, color, role_id: int, category: str = None):
-        if category is None:
-            limit = 3
+        if category is None or category == 'Pinned':
+            limit = 6
         else:
             limit = 50
         channel = await self.bot.fetch_channel(channel_id)
@@ -41,6 +41,8 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
 
         for thread in threads:
             test = int(ed.get_id(thread)) in retlist
+            if category == 'Pinned' and not ed.get_is_pinned(thread):
+                continue
 
             if not test:
                 embed = ed.make_embed(thread, color)

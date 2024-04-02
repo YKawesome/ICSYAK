@@ -86,6 +86,10 @@ def get_is_anonymous(thread: dict) -> bool:
     return bool(thread["is_anonymous"])
 
 
+def get_is_pinned(thread: dict) -> bool:
+    return bool(thread["is_pinned"])
+
+
 def get_date(thread: dict) -> datetime:
     datestring = thread["created_at"]
     datestring = datestring[:-3] + datestring[-2:]
