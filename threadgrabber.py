@@ -40,7 +40,8 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             course_id=57105,
             channel_id=1225142977996001381,
             color=0x50288c,
-            role_id=1225143041019482323
+            role_id=1225143041019482323,
+            category='Pinned'
             )
 
     async def do_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
@@ -65,7 +66,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         threads = sorted(threads, key=ed.get_date)
 
         for thread in threads:
-            print(ed.get_title(thread))
+            print(ed.get_title(thread), ed.get_is_pinned(thread), category)
             test = int(ed.get_id(thread)) in retlist
             if category == 'Pinned' and not ed.get_is_pinned(thread):
                 continue
