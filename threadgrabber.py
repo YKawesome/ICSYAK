@@ -9,6 +9,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         self.bot = bot
         self.get_6b_pinned.start()
         self.get_45c_pinned.start()
+        self.get_51_pinned.start()
 
     @tasks.loop(minutes=30)
     async def get_6b_pinned(self):
@@ -30,6 +31,16 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             color=0x50288c,
             role_id=1224858955281465364,
             category='Pinned'
+            )
+    
+    @tasks.loop(minutes=30)
+    async def get_51_pinned(self):
+        await THREADGRABBER.do_message(
+            self,
+            course_id=57105,
+            channel_id=1225142977996001381,
+            color=0x50288c,
+            role_id=1225143041019482323
             )
 
     async def do_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
