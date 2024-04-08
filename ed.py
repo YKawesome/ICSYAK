@@ -7,7 +7,12 @@ def get_threads(amt: int, course_id: int) -> list:
     ed = EdAPI()
     ed.login()
     threads = ed.list_threads(course_id=course_id, limit=amt)
-    return threads
+    ret_threads = []
+    for thread in threads:
+        if 'is_private' in thread and thread["is_private"]:
+            continue
+        ret_threads.append(dict(thread))
+    return ret_threads
 
 
 def get_thread(id: int) -> dict:

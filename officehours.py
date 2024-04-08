@@ -13,7 +13,7 @@ def make_date_string() -> str:
     return string
 
 
-class OFFICEHOURS(commands.Cog, description='Grabs Threads from Ed Discussion'):
+class OFFICEHOURS(commands.Cog, description='Pings for LA Office Hours'):
     def __init__(self, bot: commands.Bot):
         self.bot = bot
 
