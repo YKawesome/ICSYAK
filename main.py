@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 keep_alive.keep_alive()
 
-description = "An ICS 6D Discord Bot"
+description = "A UCI Discord Bot"
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 

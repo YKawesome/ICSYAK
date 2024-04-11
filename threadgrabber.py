@@ -32,7 +32,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             role_id=1224858955281465364,
             category='Pinned'
             )
-    
+
     @tasks.loop(minutes=30)
     async def get_51_pinned(self):
         await THREADGRABBER.do_message(
@@ -66,7 +66,6 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         threads = sorted(threads, key=ed.get_date)
 
         for thread in threads:
-            print(ed.get_title(thread), ed.get_is_pinned(thread), category)
             test = int(ed.get_id(thread)) in retlist
             if category == 'Pinned' and not ed.get_is_pinned(thread):
                 continue
@@ -81,9 +80,15 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
                 await channel.send(f'<@&{role_id}>')
 
     @app_commands.command(name='link_thread', description='Links a thread from Ed Discussion')
-    async def link_thread(self, interaction: discord.Interaction, thread_number: int):
+    @app_commands.describe(course_id='courses to choose from')
+    @app_commands.choices(course_id=[
+        app_commands.Choice(name='ICS 6B', value=57816),
+        app_commands.Choice(name='ICS 51', value=57105),
+        app_commands.Choice(name='ICS 45C', value=57763),
+    ])
+    async def link_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
         try:
-            thread = ed.get_course_thread(50505, thread_number)
+            thread = ed.get_course_thread(course_id.value, thread_number)
         except Exception:
             await interaction.response.send_message(f'Thread {thread_number} has been deleted or was private.')
             return

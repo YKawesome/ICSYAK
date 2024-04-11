@@ -116,9 +116,9 @@ def make_embed(thread: dict, color) -> discord.Embed:
     try:
         author = get_author(thread)
     except KeyError:
-        author = 'Anonymous, ' if get_is_anonymous(thread) else None
+        author = 'Anonymous, ' if get_is_anonymous(thread) else ''
 
-    title = f"{get_title(thread)}: {author}, in {get_category(thread)}"
+    title = f"{get_title(thread)}: {author}in {get_category(thread)}"
 
     document = get_document(thread)
     if len(document) > 4000:
@@ -146,6 +146,6 @@ def filter_threads(threads: list[dict], category: str, pinned_ok: bool) -> list[
 
 
 if __name__ == "__main__":
-    thread = get_threads(1)[0]
-    for key, value in thread.items():
-        print(f"{key}: {value}")
+    thread = get_course_thread(57105, 45)
+    for key in thread:
+        print(key, thread[key])
