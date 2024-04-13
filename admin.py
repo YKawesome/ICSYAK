@@ -71,6 +71,14 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         await thread.remove_tags(tag)
         await interaction.response.send_message(f'Marked thread {thread} as unsolved :red_square:')
 
+    @app_commands.command(name='img_verify', description='Verifies a user to post images')
+    async def img_verify(self, interaction: discord.Interaction, user: discord.Member):
+        role = discord.utils.get(interaction.guild.roles, name='Image Verified')
+        if role is None:
+            role = await interaction.guild.create_role(name='Image Verified', permissions=discord.Permissions(49152))
+        await user.add_roles(role)
+        await interaction.response.send_message('You have been granted image permissions. Use them wisely.', ephemeral=True, delete_after=5)
+
 
 async def setup(bot: commands.Bot):
     await bot.add_cog(ADMIN(bot))
