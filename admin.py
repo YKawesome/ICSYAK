@@ -31,7 +31,7 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
     async def create_problem_threads(self, interaction: discord.Interaction, forum: discord.ForumChannel, assn_name: str, problems_string: str):
         problems = problems_string.split(' ')
         try:
-            tag = discord.utils.get(forum.available_tags, name=assn_name)
+            tag = discord.utils.get(forum.available_tags, name=assn_name.split(' ')[0])
             if tag is None:
                 raise Exception
         except Exception:
