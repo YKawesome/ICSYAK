@@ -27,29 +27,8 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         await interaction.response.send_message(f'Replied to message {message_id}', ephemeral=True, delete_after=5)
 
     @app_commands.default_permissions(administrator=True)
-    @app_commands.command(name='schizo', description='Gives someone the schizo role')
-    async def schizo(self, interaction: discord.Interaction, member: discord.Member):
-        # print(member)
-        guild: discord.Guild = interaction.guild
-        role = guild.get_role(1174252377591795772)
-        # print(role)
-        await member.add_roles(role)
-        await interaction.response.send_message(f'<@{member.id}> has been schizo\'d.', ephemeral=True, delete_after=10)
-
-    @app_commands.default_permissions(administrator=True)
-    @app_commands.command(name='unschizo', description='Removes the schizo role from someone')
-    async def unschizo(self, interaction: discord.Interaction, member: discord.Member):
-        # print(member)
-        guild: discord.Guild = interaction.guild
-        role = guild.get_role(1174252377591795772)
-        # print(role)
-        await member.remove_roles(role)
-        await interaction.response.send_message(f'<@{member.id}> has been unschizo\'d.', ephemeral=True, delete_after=10)
-
-    @app_commands.default_permissions(administrator=True)
     @app_commands.command(name='create_problem_threads', description='Creates problem threads for a test. Seperate outcomes by spaces.')
-    async def create_problem_threads(self, interaction: discord.Interaction, assn_name: str, problems_string: str):
-        forum: discord.ForumChannel = interaction.guild.get_channel(1195541144210247800)
+    async def create_problem_threads(self, interaction: discord.Interaction, forum: discord.ForumChannel, assn_name: str, problems_string: str):
         problems = problems_string.split(' ')
         try:
             tag = discord.utils.get(forum.available_tags, name=assn_name)
@@ -61,6 +40,36 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
         for problem in problems:
             await forum.create_thread(name=f'{assn_name} Problem {problem}', auto_archive_duration=1440, content='Post solutions here!', applied_tags=[tag])
         await interaction.response.send_message(f'Created problem threads for {",".join(problems)} for {assn_name}', ephemeral=True, delete_after=5)
+
+    @app_commands.command(name='solved', description='Marks a forum post as solved')
+    async def solved(self, interaction: discord.Interaction):
+        if interaction.channel.type != discord.ChannelType.public_thread:
+            await interaction.response.send_message('This command can only be used in a thread', ephemeral=True, delete_after=5)
+            return
+        thread = interaction.channel
+        forum: discord.ForumChannel = thread.parent
+        try:
+            tag = discord.utils.get(forum.available_tags, name='Solved')
+            if tag is None:
+                raise Exception
+        except Exception:
+            tag = await forum.create_tag(name='Solved', emoji='✅', moderated=False)
+        await thread.add_tags(tag)
+        await interaction.response.send_message(f'Marked thread {thread} as solved :white_check_mark:')
+
+    @app_commands.command(name='unsolved', description='Marks a forum post as unsolved')
+    async def unsolved(self, interaction: discord.Interaction):
+        if interaction.channel.type != discord.ChannelType.public_thread:
+            await interaction.response.send_message('This command can only be used in a thread', ephemeral=True, delete_after=5)
+            return
+        thread = interaction.channel
+        forum: discord.ForumChannel = thread.parent
+        tag = discord.utils.get(forum.available_tags, name='Solved')
+        if tag is None:
+            await interaction.response.send_message('This thread is not currently marked as solved.', ephemeral=True, delete_after=5)
+            return
+        await thread.remove_tags(tag)
+        await interaction.response.send_message(f'Marked thread {thread} as unsolved :red_square:')
 
 
 async def setup(bot: commands.Bot):
