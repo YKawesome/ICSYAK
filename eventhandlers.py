@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import ed
+import piazza
 
 
 class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
@@ -29,17 +30,24 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
             return
 
         message = await self.fetch_message(channel, payload.message_id)
-        if message is None or message.author.id != bot_id or not channel.name.startswith('ed'):
+        if message is None or message.author.id != bot_id or not (channel.name.startswith('ed') or channel.name.startswith('piazza')):
             return
 
         if not await self.remove_reaction_if_applicable(message, payload):
             return
 
         thread, error_msg = await self.process_message_thread(message)
-        if error_msg:
+        if error_msg and thread:
             await self.send_error_message(thread, error_msg)
+        elif error_msg:
+            print(error_msg)
         else:
-            await self.send_replies(thread, message)
+            emb = message.embeds[0]
+            thread_id = int(emb.footer.text.split('| ')[-1])
+            if thread_id > 1000:
+                await self.send_ed_replies(thread, message)
+            else:
+                await self.send_piazza_replies(thread, message)
 
     async def fetch_message(self, channel, message_id):
         try:
@@ -57,6 +65,8 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     async def process_message_thread(self, message):
         emb = message.embeds[0]
         thread_id = emb.footer.text.split('| ')[-1]
+        if int(thread_id) < 1000:
+            return None, None
         try:
             ed_thread = ed.get_thread(int(thread_id))
             replies = ed_thread['comments'] + ed_thread['answers']
@@ -86,7 +96,7 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     async def send_error_message(self, thread, errormsg):
         await thread.send(errormsg)
 
-    async def send_replies(self, thread, message):
+    async def send_ed_replies(self, thread, message):
         emb = message.embeds[0]
         thread_id = emb.footer.text.split('| ')[-1]
         ed_thread = ed.get_thread(int(thread_id))
@@ -94,6 +104,14 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
         for reply in replies:
             embed = self.create_reply_embed(reply)
             await thread.send(embed=embed)
+
+    async def send_piazza_replies(self, thread, message: discord.Message):
+        assert thread is None
+        emb = message.embeds[0]
+        thread_id = emb.footer.text.split('| ')[-1]
+        class_id = emb.footer.text.split('| ')[-2].strip()
+        post = piazza.get_post(class_id, int(thread_id))
+        await message.edit(embed=post.embed)
 
     def create_reply_embed(self, reply):
         document = reply['document']

@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands, tasks
 import ed
+import piazza
 
 
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
@@ -10,10 +11,11 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         self.get_6b_pinned.start()
         self.get_45c_pinned.start()
         self.get_51_pinned.start()
+        self.get_3a_pinned.start()
 
     @tasks.loop(minutes=30)
     async def get_6b_pinned(self):
-        await THREADGRABBER.do_message(
+        await THREADGRABBER.do_ed_message(
             self,
             course_id=57816,
             channel_id=1224153183891492894,
@@ -24,7 +26,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
 
     @tasks.loop(minutes=30)
     async def get_45c_pinned(self):
-        await THREADGRABBER.do_message(
+        await THREADGRABBER.do_ed_message(
             self,
             course_id=57763,
             channel_id=1224858801346449519,
@@ -35,7 +37,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
 
     @tasks.loop(minutes=30)
     async def get_51_pinned(self):
-        await THREADGRABBER.do_message(
+        await THREADGRABBER.do_ed_message(
             self,
             course_id=57105,
             channel_id=1225142977996001381,
@@ -44,7 +46,16 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             category='Pinned'
             )
 
-    async def do_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
+    @tasks.loop(minutes=30)
+    async def get_3a_pinned(self):
+        await THREADGRABBER.do_piazza_message(
+            self,
+            class_id='lukqthfd780l2',
+            channel_id=1234779034093617175,
+            role_id=1214768527425409066
+            )
+
+    async def do_ed_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
         if category is None or category == 'Pinned':
             limit = 6
         else:
@@ -79,14 +90,34 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
                 await msg.add_reaction('❤️')
                 await channel.send(f'<@&{role_id}>')
 
-    @app_commands.command(name='link_thread', description='Links a thread from Ed Discussion')
+    async def do_piazza_message(self, class_id: str, channel_id: int, role_id: int):
+        posts = piazza.get_posts(class_id, limit=6)
+        channel = await self.bot.fetch_channel(channel_id)
+        msgs = [message async for message in channel.history(limit=100)]
+        retlist = set()
+        for msg in msgs:
+            try:
+                t_id = int(msg.embeds[0].footer.text.split('|')[-1].strip())
+                retlist.add(t_id)
+            except Exception:
+                continue
+
+        for post in posts:
+            if post.post_id in retlist:
+                continue
+            embed = post.embed
+            msg = await channel.send(embed=embed)
+            await msg.add_reaction('❤️')
+            await channel.send(f'<@&{role_id}>')
+
+    @app_commands.command(name='link_ed_thread', description='Links a thread from Ed Discussion')
     @app_commands.describe(course_id='courses to choose from')
     @app_commands.choices(course_id=[
         app_commands.Choice(name='ICS 6B', value=57816),
         app_commands.Choice(name='ICS 51', value=57105),
         app_commands.Choice(name='ICS 45C', value=57763),
     ])
-    async def link_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
+    async def link_ed_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
         try:
             thread = ed.get_course_thread(course_id.value, thread_number)
         except Exception:
