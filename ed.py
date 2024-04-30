@@ -117,6 +117,8 @@ def make_embed(thread: dict, color) -> discord.Embed:
         author = get_author(thread) + ', '
     except KeyError:
         author = 'Anonymous, ' if get_is_anonymous(thread) else ''
+    except TypeError:
+        author = ''
 
     title = f"{get_title(thread)}: {author}in {get_category(thread)}"
 
