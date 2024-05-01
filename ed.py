@@ -142,7 +142,7 @@ def filter_threads(threads: list[dict], category: str, pinned_ok: bool) -> list[
             continue
         if bool(thread["is_private"]):
             continue
-        if thread["category"] == category:
+        if category == 'All' or thread["category"] == category:
             filtered_threads.append(thread)
     return filtered_threads
 
