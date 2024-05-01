@@ -81,7 +81,7 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     async def get_or_create_thread(self, message, emb):
         try:
             thread = await message.create_thread(name=emb.title)
-            last_msg = [msg async for msg in thread.history(limit=1)][0]
+            last_msg = [msg async for msg in message.channel.history(limit=1)][0]
             await last_msg.delete()
         except Exception:
             thread = message.channel.get_thread(message.id)
