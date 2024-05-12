@@ -133,6 +133,8 @@ def get_student_response(post: dict) -> str | None:
         return html.unescape(post['children'][0]['history'][0]['content'])
     except IndexError:
         return None
+    except KeyError:
+        return None
 
 
 def get_instructor_response(post: dict) -> str | None:
@@ -140,6 +142,8 @@ def get_instructor_response(post: dict) -> str | None:
     try:
         return html.unescape(post['children'][1]['history'][0]['content'])
     except IndexError:
+        return None
+    except KeyError:
         return None
 
 
