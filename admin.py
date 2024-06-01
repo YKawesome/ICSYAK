@@ -4,7 +4,7 @@ from discord.ext import commands
 
 
 class ADMIN(commands.Cog, description='Administrative Commands'):
-    def __init__(self, bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     @app_commands.command(name='testapp', description='Tests slash commands')
@@ -73,13 +73,26 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
 
     @app_commands.command(name='img_verify', description='Verifies a user to post images')
     async def img_verify(self, interaction: discord.Interaction):
-        role = discord.utils.get(interaction.guild.roles, name='Image Verified')
-        if role is None:
-            role = await interaction.guild.create_role(name='Image Verified', permissions=discord.Permissions(49152))
-        user = interaction.user
-        await user.add_roles(role)
-        await interaction.response.send_message('You have been granted image permissions. Use them wisely.', ephemeral=True, delete_after=5)
-        # await interaction.response.send_message('Image verification is currently disabled.', ephemeral=True, delete_after=5)
+        # role = discord.utils.get(interaction.guild.roles, name='Image Verified')
+        # if role is None:
+        #     role = await interaction.guild.create_role(name='Image Verified', permissions=discord.Permissions(49152))
+        # user = interaction.user
+        # await user.add_roles(role)
+        # await interaction.response.send_message('You have been granted image permissions. Use them wisely.', ephemeral=True, delete_after=5)
+        await interaction.response.send_message('Image verification is currently disabled.', ephemeral=True, delete_after=5)
+
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.command(name='push', description='Pushes a message to all channels with the name specified')
+    async def push(self, interaction: discord.Interaction, channel_name: str, message: str):
+        if interaction.user.id != 582730177763737640:
+            await interaction.response.send_message('You do not have permission to use this command.', ephemeral=True, delete_after=5)
+            return
+        message = message.replace('\\n', '\n')
+        for guild in self.bot.guilds:
+            for channel in guild.text_channels:
+                if channel.name == channel_name:
+                    await channel.send(message)
+        await interaction.response.send_message(f'Pushed message to all channels named {channel_name}', ephemeral=True, delete_after=5)
 
 
 async def setup(bot: commands.Bot):
