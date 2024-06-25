@@ -8,64 +8,17 @@ import piazza
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        self.get_6b_pinned.start()
-        self.get_45c_pinned.start()
-        self.get_51_pinned.start()
-        self.get_3a_pinned.start()
-        self.get_6b_for_las.start()
 
-    @tasks.loop(minutes=30)
-    async def get_6b_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=57816,
-            channel_id=1224153183891492894,
-            color=0x50288c,
-            role_id=1197816299536003072,
-            category='Pinned'
-            )
-
-    @tasks.loop(minutes=15)
-    async def get_6b_for_las(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=57816,
-            channel_id=1235365217765167165,
-            color=0x50288c,
-            role_id=1235365301999370260,
-            category='All'
-            )
-
-    @tasks.loop(minutes=30)
-    async def get_45c_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=57763,
-            channel_id=1224858801346449519,
-            color=0x50288c,
-            role_id=1224858955281465364,
-            category='Pinned'
-            )
-
-    @tasks.loop(minutes=30)
-    async def get_51_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=57105,
-            channel_id=1225142977996001381,
-            color=0x50288c,
-            role_id=1225143041019482323,
-            category='Pinned'
-            )
-
-    @tasks.loop(minutes=30)
-    async def get_3a_pinned(self):
-        await THREADGRABBER.do_piazza_message(
-            self,
-            class_id='lukqthfd780l2',
-            channel_id=1234779034093617175,
-            role_id=1214768527425409066
-            )
+    # @tasks.loop(minutes=30)
+    # async def get_6b_pinned(self):
+    #     await THREADGRABBER.do_ed_message(
+    #         self,
+    #         course_id=57816,
+    #         channel_id=1224153183891492894,
+    #         color=0x50288c,
+    #         role_id=1197816299536003072,
+    #         category='Pinned'
+    #         )
 
     async def do_ed_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
         if category is None or category == 'Pinned':
