@@ -78,9 +78,9 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     @app_commands.command(name='link_ed_thread', description='Links a thread from Ed Discussion')
     @app_commands.describe(course_id='courses to choose from')
     @app_commands.choices(course_id=[
-        app_commands.Choice(name='ICS 6B', value=57816),
-        app_commands.Choice(name='ICS 51', value=57105),
-        app_commands.Choice(name='ICS 45C', value=57763),
+        app_commands.Choice(name='ICS 6B', value=57816),  # update
+        app_commands.Choice(name='STATS 67', value=57105),  # update
+        app_commands.Choice(name='ICS 46', value=61625),
     ])
     async def link_ed_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
         try:
