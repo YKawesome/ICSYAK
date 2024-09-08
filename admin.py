@@ -1,6 +1,10 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from color_palette import grab_palette
+
+
+COLOR_SEPERATOR = '———MANAGED———'
 
 
 class ADMIN(commands.Cog, description='Administrative Commands'):
@@ -93,6 +97,41 @@ class ADMIN(commands.Cog, description='Administrative Commands'):
                 if channel.name == channel_name:
                     await channel.send(message)
         await interaction.response.send_message(f'Pushed message to all channels named {channel_name}', ephemeral=True, delete_after=5)
+
+    @app_commands.default_permissions(manage_roles=True)
+    @app_commands.command(name='add_color_roles', description='Adds color roles to the server')
+    @app_commands.describe(palette_choice='color palette to use')
+    @app_commands.choices(palette_choice=[
+        app_commands.Choice(name='Chromatic', value='Chromatic'),
+        app_commands.Choice(name='Wonderland', value='Wonderland'),
+        app_commands.Choice(name='Paintbox', value='Paintbox'),
+        app_commands.Choice(name='Discord', value='Discord')
+    ])
+    async def add_color_roles(self, interaction: discord.Interaction, palette_choice: app_commands.Choice[str]):
+        await interaction.response.defer(ephemeral=True, thinking=True)
+        palette = grab_palette(palette_choice.value)
+
+        seen_start = False
+        seen_end = False
+        for role in interaction.guild.roles:
+            if seen_start and role.name == COLOR_SEPERATOR:
+                seen_end = True
+            elif role.name == COLOR_SEPERATOR:
+                seen_start = True
+
+            if seen_end:
+                if role:
+                    await role.delete()
+                break
+            elif seen_start:
+                if role:
+                    await role.delete()
+
+        await interaction.guild.create_role(name=COLOR_SEPERATOR)
+        for color in palette.__dict__:
+            await interaction.guild.create_role(name=color.replace('_', ' ').capitalize(), color=discord.Colour(int(palette[color][1:], base=16)))
+        await interaction.guild.create_role(name=COLOR_SEPERATOR)
+        await interaction.followup.send('Done.', ephemeral=True)
 
 
 async def setup(bot: commands.Bot):
