@@ -8,6 +8,7 @@ import piazza
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
+        self.get_67_pinned.start()
 
     # @tasks.loop(minutes=30)
     # async def get_6b_pinned(self):
@@ -19,6 +20,17 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     #         role_id=1197816299536003072,
     #         category='Pinned'
     #         )
+
+    @tasks.loop(minutes=30)
+    async def get_67_pinned(self):
+        await THREADGRABBER.do_ed_message(
+            self,
+            course_id=61625,
+            channel_id=1256791835980857475,
+            color=0xf47fff,
+            role_id=1256793118695755796,
+            category='Pinned'
+        )
 
     async def do_ed_message(self, course_id: int, channel_id: int, color, role_id: int, category: str = None):
         if category is None or category == 'Pinned':
@@ -78,9 +90,9 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     @app_commands.command(name='link_ed_thread', description='Links a thread from Ed Discussion')
     @app_commands.describe(course_id='courses to choose from')
     @app_commands.choices(course_id=[
-        app_commands.Choice(name='ICS 6B', value=57816),  # update
-        app_commands.Choice(name='STATS 67', value=57105),  # update
-        app_commands.Choice(name='ICS 46', value=61625),
+        # app_commands.Choice(name='ICS 6B', value=57816),  # update
+        app_commands.Choice(name='STATS 67', value=61625),  # update
+        # app_commands.Choice(name='ICS 46', value=61625),
     ])
     async def link_ed_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
         try:
