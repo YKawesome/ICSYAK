@@ -10,26 +10,27 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         self.bot = bot
         self.get_stats67dog_pinned.start()
         self.get_cs122a_pinned.start()
+        self.get_6b_pinned.start()
 
-    # @tasks.loop(minutes=30)
-    # async def get_6b_pinned(self):
-    #     await THREADGRABBER.do_ed_message(
-    #         self,
-    #         course_id=57816,
-    #         channel_id=1224153183891492894,
-    #         color=0x50288c,
-    #         role_id=1197816299536003072,
-    #         category='Pinned'
-    #         )
+    @tasks.loop(minutes=30)
+    async def get_6b_pinned(self):
+        await THREADGRABBER.do_ed_message(
+            self,
+            course_id=66341,
+            channel_id=1283796529487941653,
+            color=0x50288c,
+            role_id=1197816299536003072,
+            category='Pinned'
+            )
 
     @tasks.loop(minutes=30)
     async def get_stats67dog_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
             course_id=61625,
-            channel_id=1256791835980857475,
+            channel_id=1289096067555528754,
             color=0xf47fff,
-            role_id=1256793118695755796,
+            role_id=1289096127676813384,
             category='Pinned'
         )
 
@@ -102,7 +103,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     @app_commands.command(name='link_ed_thread', description='Links a thread from Ed Discussion')
     @app_commands.describe(course_id='courses to choose from')
     @app_commands.choices(course_id=[
-        # app_commands.Choice(name='ICS 6B', value=57816),  # update
+        app_commands.Choice(name='ICS 6B', value=66341),  # update
         app_commands.Choice(name='STATS 67 [DOGUCU]', value=61625),  # update
         # app_commands.Choice(name='ICS 46', value=61625),
         app_commands.Choice(name='CS 122A', value=67608),
