@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
+from datetime import datetime
 import ed
 import piazza
 
@@ -148,6 +149,12 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
             embed.set_author(name=reply['user_id'], url=url)
             embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
             await d_thread.send(embed=embed)
+
+    @app_commands.command(name='create_disc_post')
+    async def create_disc_post(self, interaction: discord.Interaction, forum: discord.ForumChannel):
+        date = datetime.now().strftime('%m/%d')
+        await forum.create_thread(name=f'{date} Lecture Discussion', auto_archive_duration=1440, content='Talk about today\'s discussion here!')
+        await interaction.response.send_message(f'Created discussion thread for {date}', ephemeral=True, delete_after=5)
 
 
 async def setup(bot: commands.Bot):
