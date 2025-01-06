@@ -9,52 +9,40 @@ import piazza
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        self.get_stats67dog_pinned.start()
-        self.get_cs122a_pinned.start()
-        self.get_6b_pinned.start()
-        self.get_ics46_pinned.start()
+        self.get_6d_pinned.start()
+        self.get_171_pinned.start()
+        self.get_53_pinned.start()
 
     @tasks.loop(minutes=30)
-    async def get_6b_pinned(self):
+    async def get_6d_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
-            course_id=66341,
-            channel_id=1283796529487941653,
+            course_id=70436,
+            channel_id=1319945053417902163,
             color=0x50288c,
             role_id=1197816299536003072,
             category='Pinned'
             )
 
     @tasks.loop(minutes=30)
-    async def get_stats67dog_pinned(self):
+    async def get_171_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
-            course_id=61625,
-            channel_id=1289096067555528754,
+            course_id=71190,
+            channel_id=1320686486034710600,
             color=0xf47fff,
-            role_id=1289096127676813384,
+            role_id=1320687489350107186,
             category='Pinned'
         )
 
     @tasks.loop(minutes=30)
-    async def get_cs122a_pinned(self):
+    async def get_53_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
-            course_id=67608,
-            channel_id=1282118339375796296,
+            course_id=70495,
+            channel_id=1319800553286668351,
             color=0xf47fff,
-            role_id=1287941648281632789,
-            category='Pinned'
-        )
-
-    @tasks.loop(minutes=30)
-    async def get_ics46_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=68163,
-            channel_id=1289312496284467210,
-            color=0xf47fff,
-            role_id=1224858955281465364,
+            role_id=1225143041019482323,
             category='Pinned'
         )
 
@@ -116,10 +104,9 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     @app_commands.command(name='link_ed_thread', description='Links a thread from Ed Discussion')
     @app_commands.describe(course_id='courses to choose from')
     @app_commands.choices(course_id=[
-        app_commands.Choice(name='ICS 6B', value=66341),
-        app_commands.Choice(name='STATS 67 [DOGUCU]', value=61625),
-        app_commands.Choice(name='ICS 46', value=68163),
-        app_commands.Choice(name='CS 122A', value=67608),
+        app_commands.Choice(name='ICS 6D', value=70436),
+        app_commands.Choice(name='CS 171', value=71190),
+        app_commands.Choice(name='ICS 53', value=70495),
     ])
     async def link_ed_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
         try:
