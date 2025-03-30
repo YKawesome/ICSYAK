@@ -12,7 +12,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         self.get_6b_pinned.start()
 
     @tasks.loop(minutes=30)
-    async def get_6d_pinned(self):
+    async def get_6b_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
             course_id=77331,
