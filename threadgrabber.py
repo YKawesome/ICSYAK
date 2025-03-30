@@ -12,7 +12,7 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         self.get_6b_pinned.start()
 
     @tasks.loop(minutes=30)
-    async def get_6b_pinned(self):
+    async def get_6d_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
             course_id=77331,
@@ -80,10 +80,9 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
     @app_commands.command(name='link_ed_thread', description='Links a thread from Ed Discussion')
     @app_commands.describe(course_id='courses to choose from')
     @app_commands.choices(course_id=[
-        app_commands.Choice(name='ICS 6B', value=66341),
-        app_commands.Choice(name='STATS 67 [DOGUCU]', value=61625),
-        app_commands.Choice(name='ICS 46', value=68163),
-        app_commands.Choice(name='CS 122A', value=67608),
+        app_commands.Choice(name='ICS 6D', value=70436),
+        app_commands.Choice(name='CS 171', value=71190),
+        app_commands.Choice(name='ICS 53', value=70495),
     ])
     async def link_ed_thread(self, interaction: discord.Interaction, thread_number: int, course_id: app_commands.Choice[int]):
         try:
