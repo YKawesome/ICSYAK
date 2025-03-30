@@ -9,52 +9,16 @@ import piazza
 class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'):
     def __init__(self, bot):
         self.bot = bot
-        self.get_stats67dog_pinned.start()
-        self.get_cs122a_pinned.start()
         self.get_6b_pinned.start()
-        self.get_ics46_pinned.start()
 
     @tasks.loop(minutes=30)
     async def get_6b_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
-            course_id=66341,
-            channel_id=1283796529487941653,
+            course_id=77331,
+            channel_id=1354098640951578667,
             color=0x50288c,
             role_id=1197816299536003072,
-            category='Pinned'
-            )
-
-    @tasks.loop(minutes=30)
-    async def get_stats67dog_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=61625,
-            channel_id=1289096067555528754,
-            color=0xf47fff,
-            role_id=1289096127676813384,
-            category='Pinned'
-        )
-
-    @tasks.loop(minutes=30)
-    async def get_cs122a_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=67608,
-            channel_id=1282118339375796296,
-            color=0xf47fff,
-            role_id=1287941648281632789,
-            category='Pinned'
-        )
-
-    @tasks.loop(minutes=30)
-    async def get_ics46_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=68163,
-            channel_id=1289312496284467210,
-            color=0xf47fff,
-            role_id=1224858955281465364,
             category='Pinned'
         )
 
