@@ -44,8 +44,12 @@ class MyView(discord.ui.View):
 
         now = datetime.datetime.now(tz=ZoneInfo("America/Los_Angeles"))
         today = now.strftime("%A")
-        if today not in {"Tuesday", "Thursday"} or now.time() > CUTOFF.replace(tzinfo=None):
-            await interaction.response.send_message("checkin ends at 8:15, ur too late :(", ephemeral=True, delete_after=5)
+        if today not in {"Tuesday", "Thursday"} or now.time() > CUTOFF.replace(
+            tzinfo=None
+        ):
+            await interaction.response.send_message(
+                "checkin ends at 8:15, ur too late :(", ephemeral=True, delete_after=5
+            )
             return
 
         user_id = str(interaction.user.id)
@@ -98,7 +102,8 @@ class CHECKIN(commands.Cog, description="Checkin system"):
         await self.bot.wait_until_ready()  # Wait until the bot is ready
 
     @app_commands.command(
-        name="send_checkin", description="Manually send today's checkin message",
+        name="send_checkin",
+        description="Manually send today's checkin message",
     )
     async def send_checkin(self, interaction: discord.Interaction):
         channel = self.bot.get_channel(1356725800849772775)
@@ -115,6 +120,31 @@ class CHECKIN(commands.Cog, description="Checkin system"):
             "Check-in message sent!", ephemeral=True, delete_after=5
         )
 
+    @app_commands.command(name="leaderboard", description="Get the checkin leaderboard")
+    async def leaderboard(self, interaction: discord.Interaction):
+        conn = sqlite3.connect("checkin.db")
+        c = conn.cursor()
+        c.execute("SELECT user_id, COUNT(*) FROM checkins GROUP BY user_id")
+        checkins = c.fetchall()
+        conn.close()
+
+        embed = discord.Embed(
+            title="🏆 All-Time Check-in Leaderboard", color=discord.Color.gold()
+        )
+
+        if not checkins:
+            embed.description = "No check-ins yet!"
+        else:
+            sorted_checkins = sorted(checkins, key=lambda x: x[1], reverse=True)
+            for i, (user_id, count) in enumerate(sorted_checkins[:10], start=1):
+                embed.add_field(
+                    name=f"{i}.",
+                    value=f"<@{user_id}> — **{count}** check-ins",
+                    inline=False,
+                )
+
+        await interaction.response.send_message(embed=embed)
+
 
 async def setup(bot: commands.Bot):
-    await bot.add_cog(CHECKIN(bot), guild=discord.Object(id=1219779798310588599))
+    await bot.add_cog(CHECKIN(bot))
