@@ -33,7 +33,8 @@ class THREADGRABBER(commands.Cog, description='Grabs Threads from Ed Discussion'
         retlist = set()
         for msg in msgs:
             try:
-                t_id = int(msg.embeds[0].footer.text.split('|')[-1].strip())
+                t_id = int(msg.embeds[0].footer.text.split('|')[-1].strip()) 
+                
                 retlist.add(t_id)
             except Exception:
                 continue

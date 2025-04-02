@@ -11,7 +11,7 @@ description = "A UCI Discord Bot"
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 
-startup_extensions = ["threadgrabber", "eventhandlers", "admin", "owner"]
+startup_extensions = ["threadgrabber", "eventhandlers", "admin", "owner", "checkin"]
 bot = commands.Bot(command_prefix='*', description=description, intents=discord.Intents.all())
 
 
