@@ -14,8 +14,20 @@ REMINDER_DAYS = {"Monday", "Wednesday"}
 CHECKIN_CHANNEL_ID = 1356725800849772775
 REMINDER_CHANNEL_IDS = [1356725800849772775, 1358014326031781939]
 CHECKIN_MSG = "# Good Morning <@&1356726753485127913>!\n It's time to check in :D"
-REMINDER_MSG = "# Pre-Lecture Preparation <@&{}>\nDon't forget " \
+REMINDER_MSG = (
+    "# Pre-Lecture Preparation <@&{}>\nDon't forget "
     "to finish the pre-lecture assignment! Details on GradeScope.\n-# If there isn't one, apologies! This is an automated message."
+)
+
+START = datetime.time(
+    hour=7, minute=50, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
+)
+CUTOFF = datetime.time(
+    hour=8, minute=15, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
+)
+REMINDER_TIME = datetime.time(
+    hour=21, minute=0, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
+)
 
 
 def init_db():
@@ -33,56 +45,18 @@ def init_db():
     conn.commit()
     conn.close()
 
+
 async def get_today_info():
     now = datetime.datetime.now(tz=ZoneInfo("America/Los_Angeles"))
     today = now.strftime("%A")
     return now, today
+
 
 async def delete_last_bot_message(channel, match_text=None):
     old_msg = await anext(channel.history(limit=1))
     if old_msg and old_msg.author == channel.guild.me:
         if match_text is None or old_msg.content == match_text:
             await old_msg.delete()
-
-async def has_checked_in_today(user_id, date):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT 1 FROM checkins WHERE user_id = ? AND date = ?", (user_id, date))
-    result = c.fetchone() is not None
-    conn.close()
-    return result
-
-async def add_checkin(user_id, date):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT INTO checkins (user_id, date) VALUES (?, ?)", (user_id, date))
-    conn.commit()
-    conn.close()
-
-START = datetime.time(
-    hour=7, minute=50, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
-)
-CUTOFF = datetime.time(
-    hour=8, minute=15, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
-)
-REMINDER_TIME = datetime.time(
-    hour=21, minute=0, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
-)
-
-
-async def get_today_info():
-    now = datetime.datetime.now(tz=ZoneInfo("America/Los_Angeles"))
-    today = now.strftime("%A")
-    return now, today
-
-
-async def delete_last_bot_message(channel, match_text=None):
-    async for msg in channel.history(limit=2):
-        if msg.author == channel.guild.me and (
-            match_text is None or msg.content == match_text
-        ):
-            await msg.delete()
-            break
 
 
 async def has_checked_in_today(user_id, date):
