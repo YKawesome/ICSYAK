@@ -1,13 +1,17 @@
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
+import os
 import datetime
 import sqlite3
 from zoneinfo import ZoneInfo
 
+SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_PATH = os.path.join(SCRIPT_DIR, "checkin.db")
+
 
 def init_db():
-    conn = sqlite3.connect("checkin.db")
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute(
         """
@@ -54,7 +58,7 @@ class MyView(discord.ui.View):
 
         user_id = str(interaction.user.id)
 
-        conn = sqlite3.connect("checkin.db")
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute(
             "SELECT 1 FROM checkins WHERE user_id = ? AND date = ?", (user_id, curr_day)
@@ -122,7 +126,7 @@ class CHECKIN(commands.Cog, description="Checkin system"):
 
     @app_commands.command(name="leaderboard", description="Get the checkin leaderboard")
     async def leaderboard(self, interaction: discord.Interaction):
-        conn = sqlite3.connect("checkin.db")
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("SELECT user_id, COUNT(*) FROM checkins GROUP BY user_id")
         checkins = c.fetchall()
