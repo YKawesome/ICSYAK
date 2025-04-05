@@ -127,6 +127,7 @@ class CHECKIN(commands.Cog, description="Checkin system"):
     async def before_checkin(self):
         await self.bot.wait_until_ready()  # Wait until the bot is ready
 
+    @app_commands.default_permissions(administrator=True)
     @app_commands.command(
         name="send_checkin",
         description="Manually send today's checkin message",
@@ -184,6 +185,7 @@ class CHECKIN(commands.Cog, description="Checkin system"):
     async def before_reminder(self):
         await self.bot.wait_until_ready()  # Wait until the bot is ready
 
+    @app_commands.default_permissions(administrator=True)
     @app_commands.command(
         name="send_reminder",
         description="Manually send today's reminder message",

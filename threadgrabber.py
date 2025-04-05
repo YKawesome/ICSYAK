@@ -122,9 +122,10 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
     @app_commands.describe(course_id="courses to choose from")
     @app_commands.choices(
         course_id=[
-            app_commands.Choice(name="ICS 6D", value=70436),
-            app_commands.Choice(name="CS 171", value=71190),
-            app_commands.Choice(name="ICS 53", value=70495),
+            app_commands.Choice(name="CS 161", value=77809),
+            app_commands.Choice(name="CS 162", value=77807),
+            app_commands.Choice(name="CS 178", value=77597),
+            app_commands.Choice(name="CS 6B", value=77331),
         ]
     )
     async def link_ed_thread(
@@ -166,20 +167,6 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
                 text=f"{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}"
             )
             await d_thread.send(embed=embed)
-
-    @app_commands.command(name="create_disc_post")
-    async def create_disc_post(
-        self, interaction: discord.Interaction, forum: discord.ForumChannel
-    ):
-        date = datetime.now().strftime("%m/%d")
-        await forum.create_thread(
-            name=f"{date} Lecture Discussion",
-            auto_archive_duration=1440,
-            content="Talk about today's discussion here!",
-        )
-        await interaction.response.send_message(
-            f"Created discussion thread for {date}", ephemeral=True, delete_after=5
-        )
 
 
 async def setup(bot: commands.Bot):
