@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Add SSH key
+    - name: Set up SSH key
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ics
@@ -21,17 +21,21 @@ jobs:
         eval "$(ssh-agent -s)"
         ssh-add ~/.ssh/id_ics
 
-    - name: Run remote commands
+    - name: Deploy via SSH
+      env:
+        SSH_USER: ${{ secrets.SSH_USER }}
+        SSH_HOST: ${{ secrets.SSH_HOST }}
       run: |
-        ssh -v -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+        ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
           cd ICSYAK
           git pull
           cd ..
 
-          JOBID=\$(squeue -u ${{ secrets.SSH_USER }} | awk 'NR==2 {print \$1}')
-          if [[ ! -z "\$JOBID" ]]; then
-            echo "Canceling job \$JOBID"
-            scancel \$JOBID
+          JOBID=$(squeue -u yousefk | awk 'NR==2 {print $1}')
+
+          if [[ ! -z "$JOBID" ]]; then
+            echo "Canceling job $JOBID"
+            scancel "$JOBID"
           else
             echo "No job to cancel"
           fi
