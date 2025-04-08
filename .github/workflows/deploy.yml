@@ -1,0 +1,36 @@
+name: Deploy to ICS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.9.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_KEY }}
+
+    - name: Deploy via SSH
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd ICSYAK
+          git pull
+          cd ..
+
+          JOBID=\$(squeue -u ${{ secrets.SSH_USER }} | awk 'NR==2 {print \$1}')
+          
+          if [[ ! -z "\$JOBID" ]]; then
+            echo "Canceling job \$JOBID"
+            scancel \$JOBID
+          else
+            echo "No job to cancel"
+          fi
+
+          echo "Starting new job..."
+          srunfile run_main.sh
+        EOF
