@@ -10,12 +10,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Setup SSH
-      uses: webfactory/ssh-agent@v0.9.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_KEY }}
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Deploy via SSH
+    - name: Add SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ics
+        chmod 600 ~/.ssh/id_ics
+        eval "$(ssh-agent -s)"
+        ssh-add ~/.ssh/id_ics
+
+    - name: Run remote commands
       run: |
         ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
           cd ICSYAK
@@ -23,7 +29,6 @@ jobs:
           cd ..
 
           JOBID=\$(squeue -u ${{ secrets.SSH_USER }} | awk 'NR==2 {print \$1}')
-          
           if [[ ! -z "\$JOBID" ]]; then
             echo "Canceling job \$JOBID"
             scancel \$JOBID
