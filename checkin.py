@@ -111,6 +111,7 @@ class CHECKIN(commands.Cog, description="Checkin system"):
         self.bot = bot
         init_db()
         self.checkin.start()
+        self.reminder.start()
 
     @tasks.loop(time=[START])
     async def checkin(self):
