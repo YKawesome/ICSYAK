@@ -10,36 +10,38 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up SSH key
-      run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ics
-        chmod 600 ~/.ssh/id_ics
-        eval "$(ssh-agent -s)"
-        ssh-add ~/.ssh/id_ics
+      - name: Set up SSH config and key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ics
+          chmod 600 ~/.ssh/id_ics
 
-    - name: Deploy via SSH
-      env:
-        SSH_USER: ${{ secrets.SSH_USER }}
-        SSH_HOST: ${{ secrets.SSH_HOST }}
-      run: |
-        ssh -o StrictHostKeyChecking=no "$SSH_USER@$SSH_HOST" << 'EOF'
-          cd ICSYAK
-          git pull
-          cd ..
+          echo "Host ics" >> ~/.ssh/config
+          echo "  HostName ${{ secrets.SSH_HOST }}" >> ~/.ssh/config
+          echo "  User ${{ secrets.SSH_USER }}" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/id_ics" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          chmod 600 ~/.ssh/config
 
-          JOBID=$(squeue -u yousefk | awk 'NR==2 {print $1}')
+      - name: Deploy via SSH
+        run: |
+          ssh ics << 'EOF'
+            cd ICSYAK
+            git pull
+            cd ..
 
-          if [[ ! -z "$JOBID" ]]; then
-            echo "Canceling job $JOBID"
-            scancel "$JOBID"
-          else
-            echo "No job to cancel"
-          fi
+            JOBID=$(squeue -u yousefk | awk 'NR==2 {print $1}')
 
-          echo "Starting new job..."
-          srunfile run_main.sh
-        EOF
+            if [[ ! -z "$JOBID" ]]; then
+              echo "Canceling job $JOBID"
+              scancel "$JOBID"
+            else
+              echo "No job to cancel"
+            fi
+
+            echo "Starting new job..."
+            srunfile run_main.sh
+          EOF
