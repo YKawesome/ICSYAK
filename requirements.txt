@@ -1,0 +1,5 @@
+discord
+dotenv
+flask
+piazza_api
+edapi
