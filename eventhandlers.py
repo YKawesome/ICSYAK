@@ -4,7 +4,7 @@ import ed
 import piazza
 
 
-class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
+class EVENTHANDLERS(commands.Cog, description="Event Handlers"):
     def __init__(self, bot):
         self.bot = bot
 
@@ -15,10 +15,13 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
         guild = member.guild
-        if guild.id == 1055582457509986315 and member.id in {582730177763737640, 295697456019144704}:
+        if guild.id == 1055582457509986315 and member.id in {
+            582730177763737640,
+            295697456019144704,
+        }:
             role = discord.utils.get(guild.roles, id=1221188916569313441)
             await member.add_roles(role)
-            print('added prev owner role')
+            print("added prev owner role")
 
     async def get_replies_from_thread(self, payload: discord.RawReactionActionEvent):
         bot_id = 1172417098065125436
@@ -30,7 +33,11 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
             return
 
         message = await self.fetch_message(channel, payload.message_id)
-        if message is None or message.author.id != bot_id or not (channel.name.startswith('ed') or channel.name.startswith('piazza')):
+        if (
+            message is None
+            or message.author.id != bot_id
+            or not (channel.name.startswith("ed") or channel.name.startswith("piazza"))
+        ):
             return
 
         if not await self.remove_reaction_if_applicable(message, payload):
@@ -43,7 +50,7 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
             print(error_msg)
         else:
             emb = message.embeds[0]
-            thread_id = int(emb.footer.text.split('| ')[-1])
+            thread_id = int(emb.footer.text.split("| ")[-1])
             if thread_id > 1000:
                 await self.send_ed_replies(thread, message)
             else:
@@ -64,19 +71,26 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
 
     async def process_message_thread(self, message):
         emb = message.embeds[0]
-        thread_id = emb.footer.text.split('| ')[-1]
+        thread_id = emb.footer.text.split("| ")[-1]
         if int(thread_id) < 1000:
             return None, None
         try:
             ed_thread = ed.get_thread(int(thread_id))
-            replies = ed_thread['comments'] + ed_thread['answers']
+            replies = ed_thread["comments"] + ed_thread["answers"]
             if not replies:
-                return None, 'No replies yet. Try reacting to the original message again later.'
+                return (
+                    None,
+                    "No replies yet. Try reacting to the original message again later.",
+                )
         except Exception:
-            return None, 'This thread has been deleted.'
+            return None, "This thread has been deleted."
 
         thread = await self.get_or_create_thread(message, emb)
-        return thread, None if replies else 'No replies yet. Try reacting to the original message again later.'
+        return thread, (
+            None
+            if replies
+            else "No replies yet. Try reacting to the original message again later."
+        )
 
     async def get_or_create_thread(self, message, emb):
         try:
@@ -98,9 +112,9 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
 
     async def send_ed_replies(self, thread, message):
         emb = message.embeds[0]
-        thread_id = emb.footer.text.split('| ')[-1]
+        thread_id = emb.footer.text.split("| ")[-1]
         ed_thread = ed.get_thread(int(thread_id))
-        replies = ed_thread['comments'] + ed_thread['answers']
+        replies = ed_thread["comments"] + ed_thread["answers"]
         for reply in replies:
             embed = self.create_reply_embed(reply)
             await thread.send(embed=embed)
@@ -108,18 +122,20 @@ class EVENTHANDLERS(commands.Cog, description='Event Handlers'):
     async def send_piazza_replies(self, thread, message: discord.Message):
         assert thread is None
         emb = message.embeds[0]
-        thread_id = emb.footer.text.split('| ')[-1]
-        class_id = emb.footer.text.split('| ')[-2].strip()
+        thread_id = emb.footer.text.split("| ")[-1]
+        class_id = emb.footer.text.split("| ")[-2].strip()
         post = piazza.get_post(class_id, int(thread_id))
         await message.edit(embed=post.embed)
 
     def create_reply_embed(self, reply):
-        document = reply['document']
-        embed = discord.Embed(description=document, color=0xf47fff)
+        document = reply["document"]
+        embed = discord.Embed(description=document, color=0xF47FFF)
         url = ed.get_reply_link(reply)
-        user = reply['user_id'] if reply['user_id'] != 0 else 'Anonymous'
+        user = reply["user_id"] if reply["user_id"] != 0 else "Anonymous"
         embed.set_author(name=user, url=url)
-        embed.set_footer(text=f'{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}')
+        embed.set_footer(
+            text=f"{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}"
+        )
         return embed
 
 
