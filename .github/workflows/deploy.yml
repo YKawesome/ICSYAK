@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up SSH config and key
+      - name: Set up SSH key and config
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_ics
@@ -27,7 +27,16 @@ jobs:
           echo "  StrictHostKeyChecking no" >> ~/.ssh/config
           chmod 600 ~/.ssh/config
 
-      - name: Deploy via SSH
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_ics
+
+      - name: List loaded SSH keys (debug)
+        run: ssh-add -l
+
+      - name: Debug SSH connection (dry run)
+        run: ssh -vvv ics true
+
+      - name: Deploy to Openlab
         run: |
           ssh ics << 'EOF'
             cd ICSYAK
@@ -35,7 +44,6 @@ jobs:
             cd ..
 
             JOBID=$(squeue -u yousefk | awk 'NR==2 {print $1}')
-
             if [[ ! -z "$JOBID" ]]; then
               echo "Canceling job $JOBID"
               scancel "$JOBID"
