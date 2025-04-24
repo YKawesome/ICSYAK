@@ -14,8 +14,13 @@ REMINDER_CHANNEL_IDS = [1356725800849772775, 1358014326031781939]
 CHECKIN_MSG = "# Good Morning <@&1356726753485127913>!\n It's time to check in :D"
 REMINDER_MSG = (
     "# Pre-Lecture Preparation <@&{}>\nDon't forget "
-    "to finish the pre-lecture assignment! Details on GradeScope.\n-# If there isn't one, apologies! This is an automated message."
+    "to finish **{}**! Details on GradeScope.\n"
 )
+
+SERVER_TO_GS = {
+    1219779798310588599: 1011553,  # 161
+    1352534413467979786: 1009804,  # 162
+}
 
 START = datetime.time(
     hour=7, minute=50, second=0, tzinfo=ZoneInfo("America/Los_Angeles")
@@ -50,7 +55,7 @@ async def get_today_info():
     return now, today
 
 
-async def delete_last_bot_message(channel, match_text=None):
+async def delete_last_bot_message(channel: discord.TextChannel, match_text=None):
     old_msg = await anext(channel.history(limit=1))
     if old_msg and old_msg.author == channel.guild.me:
         if match_text is None or old_msg.content == match_text:
@@ -108,4 +113,6 @@ class MyView(discord.ui.View):
             await interaction.response.send_message(
                 "You checked in!", ephemeral=True, delete_after=5
             )
+
+
 #
