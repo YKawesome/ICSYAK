@@ -73,7 +73,8 @@ class CHECKIN(commands.Cog, description="Checkin system"):
         )
 
     @app_commands.command(name="leaderboard", description="Get the checkin leaderboard")
-    async def leaderboard(self, interaction: discord.Interaction):
+    async def leaderboard(self, interaction: discord.Interaction, ephemeral: bool = False):
+        await interaction.response.defer(ephemeral=ephemeral)
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("SELECT user_id, COUNT(*) FROM checkins GROUP BY user_id")
@@ -94,7 +95,8 @@ class CHECKIN(commands.Cog, description="Checkin system"):
                     value=f"{(await interaction.guild.fetch_member(int(user_id))).mention} — **{count}** check-ins",
                     inline=False,
                 )
-        await interaction.response.send_message(embed=embed)
+        # await interaction.response.send_message(embed=embed, ephemeral=ephemeral)
+        await interaction.followup.send(embed=embed, ephemeral=ephemeral)
 
     async def _send_reminder_message(
         self, channel: discord.TextChannel, guild: discord.Guild
@@ -170,45 +172,67 @@ class CHECKIN(commands.Cog, description="Checkin system"):
                 "No open assignments found!", ephemeral=True, delete_after=5
             )
 
-    @app_commands.command(name="me", description="Show how many check-ins you've done")
-    async def me(self, interaction: discord.Interaction):
+    @app_commands.command(name="my_checkins", description="Show how many check-ins you've done")
+    async def checkin_me(self, interaction: discord.Interaction, ephemeral: bool = False):
+        await self._show_checkin_stats(interaction, interaction.user, ephemeral)
+
+    @app_commands.command(name="user_checkins", description="Show how many check-ins another user has done")
+    async def checkin_user(self, interaction: discord.Interaction, member: discord.Member, ephemeral: bool = False):
+        await self._show_checkin_stats(interaction, member, ephemeral)
+
+    async def _show_checkin_stats(self, interaction: discord.Interaction, user: discord.abc.User, ephemeral: bool):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute(
             "SELECT COUNT(*) FROM checkins WHERE user_id = ?",
-            (str(interaction.user.id),),
+            (str(user.id),),
         )
         (user_count,) = c.fetchone()
+
+        if user_count == 0:
+            embed = discord.Embed(
+                title="Check-in Stats",
+                description=f"{user.display_name} has never checked in.",
+                color=discord.Color.red(),
+            )
+            embed.set_author(
+                name=user.display_name,
+                icon_url=user.display_avatar.url,
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+            conn.close()
+            return
+
         c.execute("SELECT COUNT(DISTINCT date) FROM checkins")
         (total_days,) = c.fetchone()
-        c.execute("SELECT DISTINCT date FROM checkins WHERE user_id = ? ORDER BY date", (str(interaction.user.id),))
+        c.execute("SELECT DISTINCT date FROM checkins WHERE user_id = ? ORDER BY date", (str(user.id),))
         user_dates = [row[0] for row in c.fetchall()]
         c.execute("SELECT user_id, COUNT(*) FROM checkins GROUP BY user_id")
         checkins = c.fetchall()
         conn.close()
 
         sorted_checkins = sorted(checkins, key=lambda x: x[1], reverse=True)
-        rank = next(i + 1 for i, (uid, _) in enumerate(sorted_checkins) if str(uid) == str(interaction.user.id))
+        rank = next(i + 1 for i, (uid, _) in enumerate(sorted_checkins) if str(uid) == str(user.id))
         total_users = len(sorted_checkins)
         percentile = 100 * (total_users - rank) / (total_users - 1) if total_users > 1 else 100
 
         embed = discord.Embed(
-            title="Your Check-in Stats",
+            title="Check-in Stats",
             description=(
-                f"You've checked in **{user_count}** times!\n"
+                f"{user.display_name} has checked in **{user_count}** times!\n"
                 f"That's **{user_count} / {total_days}** check-in days.\n\n"
-                f"**Your Rank:** #{rank} out of {total_users} ({percentile:.1f} percentile)\n\n"
-                "**Days you've checked in:**\n" +
+                f"**Rank:** #{rank} out of {total_users} ({percentile:.1f} percentile)\n\n"
+                "**Days checked in:**\n" +
                 "\n".join(f"- {date}" for date in user_dates)
             ),
             color=discord.Color.blue(),
         )
         embed.set_author(
-            name=interaction.user.display_name,
-            icon_url=interaction.user.display_avatar.url,
+            name=user.display_name,
+            icon_url=user.display_avatar.url,
         )
 
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=embed, ephemeral=ephemeral)
 
 
 async def setup(bot: commands.Bot):
