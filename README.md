@@ -1,17 +1,136 @@
 # ICSYAK
+
+<p align="center">
+
+   <img src="https://github.com/user-attachments/assets/c418c365-d036-45c0-a57e-822bd0312a57" width="200" height="200">
+</p>
+
+<p align="center">
+   <em>A Discord bot for UCI's ICS courses that bridges course platforms like Ed Discussion, Piazza, Gradescope, and Discord — designed to keep students informed without switching tabs.</em>
+</p>
+
+---
+
 ## About
-ICSYAK is a Discord Bot that was made for ICS 6B and 6D at UCI. 
-## Problem
-During the 2023 Fall Quarter in ICS 6B, the staff had to leave our class's Discord server due to various reasons. As such, all communication with them was moved to the official disussion site: Ed Discussion.
-However, many of the members of the server felt that its interface was difficult to navigate and did not enjoy having to use a second platform to understand the class—this was especially needed because many critical clarifications and announcements were made on Ed Discussion. Effectively, you may miss out on a lot of points by not checking Ed Discussion.
-## Solution
-This bot utilizes Flask to host a web server on repl.it, and uptimerobot to make HEAD requests so that the repl doesn't go to sleep (effectively keeping the bot alive 24/7, for free). Additionally, it uses the **edapi** python package, which made communication with the Ed Stem API much more convenient. From there, I made an ed.py module to hold all utility commands I might need for the bot. I then used the asynchronous tasks.loop() method for each category in the Ed Discussion, and used one of my utility methods to pull each new thread (and sort them by date). The bot checks the most recent threads with the most recent embeds in the discord channel; if none are new, nothing new is posted (preventing repeats).
 
-## Additional Features
-The bot now can also pull replies: Reacting to an embed from the bot will create a new Discord thread on that message, and will pull all replies and send them as embeds, linking to the reply on Ed in the author field of the embed. If there are no replies, the thread will be created but a message will clarify that there are no replies. This reply feature works with both answers and comments; however, it is only one "layer" deep, as it does not support replies to replies.
+**ICSYAK** is a multi-purpose Discord bot designed for UCI students in Computer Science and Informatics classes. Originally built for ICS 6B and 6D, it has since expanded to support over a dozen courses across five quarters. The bot solves a key pain point: many instructors moved away from Discord to Ed Discussion or Piazza, leaving students out of the loop. ICSYAK brings that critical information *back* to Discord, with a full suite of features that automate, track, and notify.
 
-When the bot recognizes a discord message that starts with an ed post link, it "replaces" that message with an embedded ed post (similar to the ones automatically posted in ed channels); a Discord Thread is made on that message, and all replies are attached as embeds as well.
+---
 
-A /link_thread command has been implemented to allow users to embed threads from Ed with just the thread number (not the thread id); using thread #1831 as an example, a user would only need to type /link_thread 1831 and the bot would embed that ed discussion thread.
-## Implementation
-<img height="400" align="center" alt="Screenshot 2023-11-15 at 1 51 53 AM" src="https://github.com/YKawesome/ICSYAK/assets/72176181/b3a86909-859d-4858-8401-8603b4f23a0c"><img height="400" align="center" alt="Screenshot 2023-11-15 at 1 53 54 AM" src="https://github.com/YKawesome/ICSYAK/assets/72176181/4f9bfe3e-3688-4d27-a43c-2d662925152c">
+## Features
+
+### 📌 Course Forum Integration
+
+- **Ed Discussion Support**:
+  - Auto-post new threads by category.
+  - Reacting to posts opens Discord threads with embedded replies (answers & comments).
+  - Slash command `/link_thread [id]` embeds a specific Ed thread via number.
+  - Replaces Ed URLs in user messages with rich embeds and reply threads.
+
+- **Piazza Support** *(new!)*:
+  - Automatically mirrors new posts from Piazza into Discord.
+  - Built-in handling for follow-ups and responses.
+
+### 🗂️ Gradescope Integration
+
+- Uses the [`gradescope-tool`](https://pypi.org/project/gradescope-tool/) Python package (contributed to by the developer).
+- Supports fetching assignment templates (e.g., PDFs for CS161/162).
+- Automatically structures the templates and sends reminder messages in Discord before deadlines.
+
+### ✅ Check-In System
+
+- Custom `/checkin` command with persistent buttons (survive bot restarts).
+- Tracks participant check-ins using a SQLite database.
+- Designed for weekly CS161 check-ins — includes ranking and statistics output.
+- Stores and restores interaction IDs on restart for seamless use.
+
+### 🎨 Color Palette Role Manager
+
+- Adds aesthetic role selection via buttons.
+- Fully customizable with dynamic color role sets.
+- Useful for branding student servers or for fun.
+
+### 📈 Course Tracking
+
+- Bot usage spans:
+  - **13 courses**
+  - **8 professors**
+  - **5 academic quarters**
+  - **1000+ students**
+
+| Dept | #     | Prof       | Quarters             |
+|------|-------|------------|----------------------|
+| ICS  | 6B    | Gassko     | F23, S24, F24        |
+| ICS  | 6D    | Gassko     | W24, W25             |
+| ICS  | 45C   | Klefstad   | S24                  |
+| ICS  | 46    | Shindler   | F24                  |
+| ICS  | 51    | Dutt       | W24                  |
+| ICS  | 53    | Wong-ma    | W25                  |
+| STATS| 67    | Dogucu     | F24                  |
+| INF  | 43    | Ziv        | W24                  |
+| INF  | 133   | Jaganath   | F24                  |
+| CS   | 122A  | Wong-ma    | F24                  |
+| CS   | 161   | Shindler   | S25                  |
+| CS   | 162   | Shindler   | S25                  |
+| CS   | 178   | Ahmed      | S25                  |
+
+---
+
+## Hosting & Deployment
+
+- Hosted on **UCI ICS servers** using `SLURM` for job scheduling.
+- Uses Flask for web pinging (`keep_alive.py`).
+- Compatible with `uptimerobot` or production cron systems.
+
+---
+
+## Tech Stack
+
+- `discord.py` for the bot framework.
+- `edapi`, `gradescope-tool`, `piazza-api` for API access.
+- `sqlite3` for persistent state (check-ins, roles, interaction tracking).
+- `Flask` for web server + uptime pings.
+- `asyncio`, `tasks.loop` for periodic updates.
+
+---
+
+## Getting Started
+
+> **Note:** You must provide a `.env` file with proper credentials and token setup.
+
+```bash
+pip install -r requirements.txt
+python main.py
+```
+
+---
+
+## Directory Overview
+
+```
+├── checkin.db                # SQLite DB for persistent check-ins
+├── checkin.py                # Check-in system logic
+├── ed.py                     # Ed Discussion utilities
+├── piazza.py                 # Piazza integration
+├── gradescope_helper.py      # Gradescope assignment and reminder handler
+├── color_palette.py          # Color role system
+├── eventhandlers.py          # Central event/router logic
+├── keep_alive.py             # Flask uptime pings
+├── main.py                   # Bot entry point
+├── threadgrabber.py          # Ed reply fetcher + embedder
+├── owner.py, view.py, admin.py # Admin utilities
+```
+
+---
+
+## Contributing
+
+Contributions welcome! Submit an issue or open a PR.
+
+---
+
+## License
+
+MIT License © 2025 Yousef Khan
+
+---
