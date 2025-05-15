@@ -13,7 +13,7 @@
 
 ## About
 
-**ICSYAK** is a multi-purpose Discord bot designed for UCI students in Computer Science and Informatics classes. Originally built for ICS 6B and 6D, it has since expanded to support over a dozen courses across five quarters. The bot solves a key pain point: many instructors moved away from Discord to Ed Discussion or Piazza, leaving students out of the loop. ICSYAK brings that critical information *back* to Discord, with a full suite of features that automate, track, and notify.
+**ICSYAK** is a multi-purpose Discord bot designed for UCI students in Computer Science and Informatics classes. Originally built for ICS 6B and 6D, it has since expanded to support over a dozen courses across five quarters. The bot solves a key pain point: many courses use Ed Discussion or Piazza as their official course forums, but students form large yet unofficial Discord communities. ICSYAK brings critical information *into* to Discord, with a full suite of features that automate, track, and notify.
 
 ---
 
