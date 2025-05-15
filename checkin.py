@@ -91,13 +91,14 @@ class CHECKIN(commands.Cog, description="Checkin system"):
             for i, (user_id, count) in enumerate(sorted_checkins[:10], start=1):
                 embed.add_field(
                     name=f"{i}.",
-                    value=f"<@{user_id}> — **{count}** check-ins",
+                    value=f"{(await interaction.guild.fetch_member(int(user_id))).mention} — **{count}** check-ins",
                     inline=False,
                 )
-
         await interaction.response.send_message(embed=embed)
 
-    async def _send_reminder_message(self, channel: discord.TextChannel, guild: discord.Guild):
+    async def _send_reminder_message(
+        self, channel: discord.TextChannel, guild: discord.Guild
+    ):
         await delete_last_bot_message(channel)
 
         gs = GradescopeHelper()
@@ -110,17 +111,13 @@ class CHECKIN(commands.Cog, description="Checkin system"):
         open_assn = open_assns[0]
         try:
             file = discord.File(
-                gs.get_template_file(open_assn),
-                filename=open_assn.title + ".pdf"
+                gs.get_template_file(open_assn), filename=open_assn.title + ".pdf"
             )
         except Exception:
             file = None
 
         role_id = discord.utils.get(guild.roles, name="REMINDER PINGS").id
-        await channel.send(
-            REMINDER_MSG.format(role_id, open_assn.title),
-            file=file
-        )
+        await channel.send(REMINDER_MSG.format(role_id, open_assn.title), file=file)
         return open_assn
 
     @tasks.loop(time=[REMINDER_TIME])
@@ -142,11 +139,17 @@ class CHECKIN(commands.Cog, description="Checkin system"):
         description="Manually send today's reminder message",
     )
     async def send_reminder(self, interaction: discord.Interaction):
-        result = await self._send_reminder_message(interaction.channel, interaction.guild)
+        result = await self._send_reminder_message(
+            interaction.channel, interaction.guild
+        )
         if result:
-            await interaction.response.send_message("Reminder message sent!", ephemeral=True, delete_after=5)
+            await interaction.response.send_message(
+                "Reminder message sent!", ephemeral=True, delete_after=5
+            )
         else:
-            await interaction.response.send_message("No open assignments found!", ephemeral=True, delete_after=5)
+            await interaction.response.send_message(
+                "No open assignments found!", ephemeral=True, delete_after=5
+            )
 
     @app_commands.command(
         name="send_reminder_in",
@@ -166,6 +169,46 @@ class CHECKIN(commands.Cog, description="Checkin system"):
             await interaction.response.send_message(
                 "No open assignments found!", ephemeral=True, delete_after=5
             )
+
+    @app_commands.command(name="me", description="Show how many check-ins you've done")
+    async def me(self, interaction: discord.Interaction):
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute(
+            "SELECT COUNT(*) FROM checkins WHERE user_id = ?",
+            (str(interaction.user.id),),
+        )
+        (user_count,) = c.fetchone()
+        c.execute("SELECT COUNT(DISTINCT date) FROM checkins")
+        (total_days,) = c.fetchone()
+        c.execute("SELECT DISTINCT date FROM checkins WHERE user_id = ? ORDER BY date", (str(interaction.user.id),))
+        user_dates = [row[0] for row in c.fetchall()]
+        c.execute("SELECT user_id, COUNT(*) FROM checkins GROUP BY user_id")
+        checkins = c.fetchall()
+        conn.close()
+
+        sorted_checkins = sorted(checkins, key=lambda x: x[1], reverse=True)
+        rank = next(i + 1 for i, (uid, _) in enumerate(sorted_checkins) if str(uid) == str(interaction.user.id))
+        total_users = len(sorted_checkins)
+        percentile = 100 * (total_users - rank) / (total_users - 1) if total_users > 1 else 100
+
+        embed = discord.Embed(
+            title="Your Check-in Stats",
+            description=(
+                f"You've checked in **{user_count}** times!\n"
+                f"That's **{user_count} / {total_days}** check-in days.\n\n"
+                f"**Your Rank:** #{rank} out of {total_users} ({percentile:.1f} percentile)\n\n"
+                "**Days you've checked in:**\n" +
+                "\n".join(f"- {date}" for date in user_dates)
+            ),
+            color=discord.Color.blue(),
+        )
+        embed.set_author(
+            name=interaction.user.display_name,
+            icon_url=interaction.user.display_avatar.url,
+        )
+
+        await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot):
