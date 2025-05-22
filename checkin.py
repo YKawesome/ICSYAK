@@ -119,7 +119,7 @@ class CHECKIN(commands.Cog, description="Checkin system"):
             file = None
 
         role_id = discord.utils.get(guild.roles, name="REMINDER PINGS").id
-        await channel.send(REMINDER_MSG.format(role_id, open_assn.title), file=file)
+        await channel.send(REMINDER_MSG.format(role_id, open_assn.title, course.get_url()), file=file)
         return open_assn
 
     @tasks.loop(time=[REMINDER_TIME])

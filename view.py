@@ -14,7 +14,7 @@ REMINDER_CHANNEL_IDS = [1356725800849772775, 1358014326031781939]
 CHECKIN_MSG = "# Good Morning <@&1356726753485127913>!\n It's time to check in :D"
 REMINDER_MSG = (
     "# Pre-Lecture Preparation <@&{}>\nDon't forget "
-    "to finish **{}**! Details on GradeScope.\n"
+    "to finish **{}**! Details on [GradeScope]({}).\n"
 )
 
 SERVER_TO_GS = {
