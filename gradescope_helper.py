@@ -1,5 +1,5 @@
 from functools import wraps
-from gradescope import Gradescope, Role, StudentAssignment, Course
+from gradescope import Gradescope, Course, StudentAssignment, Role
 import dotenv
 
 
