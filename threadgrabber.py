@@ -9,15 +9,14 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
     def __init__(self, bot):
         self.bot = bot
         self.get_6b_pinned.start()
-        self.get_161_pinned.start()
-        self.get_162_pinned.start()
-        self.get_178_pinned.start()
+        # self.get_161_pinned.start()
+        self.get_121_pinned.start()
 
     @tasks.loop(minutes=30)
     async def get_6b_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
-            course_id=77331,
+            course_id=87345,
             channel_id=1354098640951578667,
             color=0x50288C,
             role_id=1197816299536003072,
@@ -36,29 +35,18 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
         )
 
     @tasks.loop(minutes=30)
-    async def get_162_pinned(self):
+    async def get_121_pinned(self):
         await THREADGRABBER.do_ed_message(
             self,
-            course_id=77807,
-            channel_id=1352557890438959104,
+            course_id=87804,
+            channel_id=1418365288964952176,
             color=0x50288C,
-            role_id=1352534413467979788,
-            category="Pinned",
-        )
-
-    @tasks.loop(minutes=30)
-    async def get_178_pinned(self):
-        await THREADGRABBER.do_ed_message(
-            self,
-            course_id=77597,
-            channel_id=1329617085575462922,
-            color=0x50288C,
-            role_id=1324212503109963908,
+            role_id=1418731515696644178,
             category="Pinned",
         )
 
     async def do_ed_message(
-        self, course_id: int, channel_id: int, color, role_id: int, category: str = None
+        self, course_id: int, channel_id: int, color, role_id: int, category: str | None = None
     ):
         if category is None or category == "Pinned":
             limit = 6
@@ -143,13 +131,25 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
         embed = ed.make_embed(thread, 0xF47FFF)
         await interaction.response.send_message(embed=embed)
 
-        new_message = interaction.channel.last_message
+        if not interaction.channel:
+            return
+        if interaction.channel.type == discord.ChannelType.forum:
+            await interaction.followup.send(
+                "We are in a forum channel, so I am not listing the replies here."
+            )
+            return
+
+        channel: discord.TextChannel = interaction.channel  # type: ignore
+
+        new_message = channel.last_message
+        if new_message is None:
+            return
         if len(new_message.embeds) == 0:
             return
         try:
-            d_thread = await new_message.create_thread(name=new_message.embeds[0].title)
+            d_thread = await new_message.create_thread(name=new_message.embeds[0].title or "Thread")
         except Exception:
-            await interaction.channel.send(
+            await channel.send(
                 "We are in a thread already, so I am not listing the replies here."
             )
             return

@@ -8,3 +8,4 @@ __pycache__
 *.key
 json
 *.db
+.mypy_cache
