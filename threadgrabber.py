@@ -45,6 +45,17 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
             category="Pinned",
         )
 
+    @tasks.loop(minutes=30)
+    async def get_141_pinned(self):
+        await THREADGRABBER.do_ed_message(
+            self,
+            course_id=87890,
+            channel_id=1418200189763719278,
+            color=0x50288C,
+            role_id=1418197278367420479,
+            category="Pinned",
+        )
+
     async def do_ed_message(
         self, course_id: int, channel_id: int, color, role_id: int, category: str | None = None
     ):
