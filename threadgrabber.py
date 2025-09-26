@@ -10,6 +10,7 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
         self.bot = bot
         self.get_6b_pinned.start()
         # self.get_161_pinned.start()
+        self.get_141_pinned.start()
         self.get_121_pinned.start()
 
     @tasks.loop(minutes=30)
