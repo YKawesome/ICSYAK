@@ -12,7 +12,14 @@ description = "A UCI Discord Bot"
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-startup_extensions = ["threadgrabber", "eventhandlers", "admin", "owner", "checkin"]
+startup_extensions = [
+    "threadgrabber",
+    "eventhandlers",
+    "admin",
+    "owner",
+    "checkin",
+    "groups",
+]
 bot = commands.Bot(
     command_prefix="*", description=description, intents=discord.Intents.all()
 )
@@ -50,6 +57,7 @@ async def setup_hook():
         except Exception as e:
             exc = "{}: {}".format(type(e).__name__, e)
             print("Failed to load extension {}\n{}".format(extension, exc))
+
 
 if __name__ == "__main__":
     if TOKEN:

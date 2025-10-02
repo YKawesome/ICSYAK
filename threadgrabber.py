@@ -115,69 +115,69 @@ class THREADGRABBER(commands.Cog, description="Grabs Threads from Ed Discussion"
             await msg.add_reaction("❤️")
             await channel.send(f"<@&{role_id}>")
 
-    @app_commands.command(
-        name="link_ed_thread", description="Links a thread from Ed Discussion"
-    )
-    @app_commands.describe(course_id="courses to choose from")
-    @app_commands.choices(
-        course_id=[
-            app_commands.Choice(name="CS 161", value=77809),
-            app_commands.Choice(name="CS 162", value=77807),
-            app_commands.Choice(name="CS 178", value=77597),
-            app_commands.Choice(name="CS 6B", value=77331),
-        ]
-    )
-    async def link_ed_thread(
-        self,
-        interaction: discord.Interaction,
-        thread_number: int,
-        course_id: app_commands.Choice[int],
-    ):
-        try:
-            thread = ed.get_course_thread(course_id.value, thread_number)
-        except Exception:
-            await interaction.response.send_message(
-                f"Thread {thread_number} has been deleted or was private."
-            )
-            return
-        embed = ed.make_embed(thread, 0xF47FFF)
-        await interaction.response.send_message(embed=embed)
+    # @app_commands.command(
+    #     name="link_ed_thread", description="Links a thread from Ed Discussion"
+    # )
+    # @app_commands.describe(course_id="courses to choose from")
+    # @app_commands.choices(
+    #     course_id=[
+    #         app_commands.Choice(name="CS 161", value=77809),
+    #         app_commands.Choice(name="CS 162", value=77807),
+    #         app_commands.Choice(name="CS 178", value=77597),
+    #         app_commands.Choice(name="CS 6B", value=77331),
+    #     ]
+    # )
+    # async def link_ed_thread(
+    #     self,
+    #     interaction: discord.Interaction,
+    #     thread_number: int,
+    #     course_id: app_commands.Choice[int],
+    # ):
+    #     try:
+    #         thread = ed.get_course_thread(course_id.value, thread_number)
+    #     except Exception:
+    #         await interaction.response.send_message(
+    #             f"Thread {thread_number} has been deleted or was private."
+    #         )
+    #         return
+    #     embed = ed.make_embed(thread, 0xF47FFF)
+    #     await interaction.response.send_message(embed=embed)
 
-        if not interaction.channel:
-            return
-        if interaction.channel.type == discord.ChannelType.forum:
-            await interaction.followup.send(
-                "We are in a forum channel, so I am not listing the replies here."
-            )
-            return
+    #     if not interaction.channel:
+    #         return
+    #     if interaction.channel.type == discord.ChannelType.forum:
+    #         await interaction.followup.send(
+    #             "We are in a forum channel, so I am not listing the replies here."
+    #         )
+    #         return
 
-        channel: discord.TextChannel = interaction.channel  # type: ignore
+    #     channel: discord.TextChannel = interaction.channel  # type: ignore
 
-        new_message = channel.last_message
-        if new_message is None:
-            return
-        if len(new_message.embeds) == 0:
-            return
-        try:
-            d_thread = await new_message.create_thread(name=new_message.embeds[0].title or "Thread")
-        except Exception:
-            await channel.send(
-                "We are in a thread already, so I am not listing the replies here."
-            )
-            return
+    #     new_message = channel.last_message
+    #     if new_message is None:
+    #         return
+    #     if len(new_message.embeds) == 0:
+    #         return
+    #     try:
+    #         d_thread = await new_message.create_thread(name=new_message.embeds[0].title or "Thread")
+    #     except Exception:
+    #         await channel.send(
+    #             "We are in a thread already, so I am not listing the replies here."
+    #         )
+    #         return
 
-        comments = thread["comments"]
-        answers = thread["answers"]
-        replies = comments + answers
-        for reply in replies:
-            document = reply["document"]
-            embed = discord.Embed(description=document, color=0xF47FFF)
-            url = ed.get_reply_link(reply)
-            embed.set_author(name=reply["user_id"], url=url)
-            embed.set_footer(
-                text=f"{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}"
-            )
-            await d_thread.send(embed=embed)
+    #     comments = thread["comments"]
+    #     answers = thread["answers"]
+    #     replies = comments + answers
+    #     for reply in replies:
+    #         document = reply["document"]
+    #         embed = discord.Embed(description=document, color=0xF47FFF)
+    #         url = ed.get_reply_link(reply)
+    #         embed.set_author(name=reply["user_id"], url=url)
+    #         embed.set_footer(
+    #             text=f"{ed.get_date_string(reply)} | A bot by yousef :D | {ed.get_id(reply)}"
+    #         )
+    #         await d_thread.send(embed=embed)
 
 
 async def setup(bot: commands.Bot):
