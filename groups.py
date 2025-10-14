@@ -47,14 +47,14 @@ class GROUPS(commands.Cog, description="Group Finding"):
 
         embed.add_field(
             name="Open Group",
-            value="\n".join(member.mention for member in members_with_open_role)
+            value="\n".join(member.mention for member in members_with_open_role)[:1000]
             or "No users found.",
             inline=False,
         )
 
         embed.add_field(
             name="No Group",
-            value="\n".join(member.mention for member in members_with_no_group_role)
+            value="\n".join(member.mention for member in members_with_no_group_role)[:1000]
             or "No users found.",
             inline=False,
         )
