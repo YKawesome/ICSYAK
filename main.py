@@ -3,7 +3,6 @@ import discord
 import keep_alive
 from discord.ext import commands
 from dotenv import load_dotenv
-from checkin import MyView
 
 load_dotenv()
 keep_alive.keep_alive()
@@ -17,8 +16,8 @@ startup_extensions = [
     "eventhandlers",
     "admin",
     "owner",
-    "checkin",
     "groups",
+    "reminders"
 ]
 bot = commands.Bot(
     command_prefix="*", description=description, intents=discord.Intents.all()
@@ -32,7 +31,7 @@ async def on_ready():
             type=discord.ActivityType.listening, name="your needs :)"
         )
     )
-    bot.add_view(MyView())
+    # bot.add_view(MyView())
     try:
         synced = await bot.tree.sync()
         print(f"Synced {len(synced)} commands")

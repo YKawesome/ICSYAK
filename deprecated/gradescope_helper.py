@@ -87,11 +87,30 @@ DEFAULT_ROLE = Role.INSTRUCTOR
 #         file_obj.seek(0)
 #         return file_obj
 
- 
-if __name__ == '__main__':
-    gs = Gradescope(username=USERNAME, password=PASSWORD)
-    gs.login()
 
-    # courses = gs.get_courses(role=DEFAULT_ROLE, as_dict=True)
-    courses = gs.get_courses(role=DEFAULT_ROLE)
-    print(courses)
+def assns_due_tonight(assns: list[StudentAssignment]) -> list[StudentAssignment]:
+    from datetime import datetime, time, timedelta
+    from dateutil.parser import parse
+
+    due_tonight = []
+    # temporarily test tomorrow
+    now = datetime.now() + timedelta(days=2)
+
+    for assn in assns:
+        try:
+            due_date = parse(assn.due_date)
+            if due_date.date() == now.date() and due_date.time() <= time(23, 59, 59):
+                due_tonight.append(assn)
+        except Exception:
+            continue
+    return due_tonight
+
+
+if __name__ == "__main__":
+    gs = Gradescope(username=USERNAME, password=PASSWORD)
+
+    courses = gs.get_courses(role=DEFAULT_ROLE, as_dict=True)
+    cs141 = courses[1092565]
+
+    assns = gs.get_assignments_as_student(cs141)
+    print(assns_due_tonight(assns))

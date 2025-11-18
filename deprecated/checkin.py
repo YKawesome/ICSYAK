@@ -16,7 +16,7 @@ from view import (
 from view import MyView
 import sqlite3
 import discord
-from gradescope_helper import GradescopeHelper
+from deprecated.gradescope_helper import GradescopeHelper
 
 
 class CHECKIN(commands.Cog, description="Checkin system"):
