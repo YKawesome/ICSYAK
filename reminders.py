@@ -1,5 +1,6 @@
 import os
 
+from discord import app_commands
 from discord.ext import commands, tasks
 from dotenv import load_dotenv
 from gradescope import Gradescope, StudentAssignment, Role  # type: ignore
@@ -62,6 +63,13 @@ class REMINDERS(commands.Cog, description="Reminders for Gradescope Assignments"
             if channel:
                 await channel.send(msg)
 
+    @app_commands.default_permissions(administrator=True)
+    @app_commands.command(
+        name="send_reminder", description="Test sending assignment reminders"
+    )
+    async def send_reminder(self, interaction):
+        await self.send_reminders()
+
     @staticmethod
     def assns_due_tonight(assns: list[StudentAssignment]) -> list[StudentAssignment]:
         due_tonight = []
@@ -77,6 +85,7 @@ class REMINDERS(commands.Cog, description="Reminders for Gradescope Assignments"
             except Exception:
                 continue
         return due_tonight
+
 
 
 async def setup(bot):
